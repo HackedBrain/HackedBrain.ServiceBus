@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("HackedBrain.ServiceBus.Core")]
+[assembly: AssemblyTitle("HackedBrain.ServiceBus.Azure")]
 [assembly: AssemblyDescription("")]
 
 #if DEBUG

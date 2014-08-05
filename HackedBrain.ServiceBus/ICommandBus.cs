@@ -8,8 +8,8 @@ namespace HackedBrain.ServiceBus
 {
 	public interface ICommandBus
 	{
-		Task SendAsync<TCommand>(TCommand commandMessage);
+		Task SendCommandAsync<TCommand>(TCommand commandMessage);
 
-		IObservable<TCommand> Receive<TCommand>();
+		IObservable<TCommand> WhenCommandReceived<TCommand>();
 	}
 }
