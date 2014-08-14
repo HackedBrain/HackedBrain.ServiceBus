@@ -14,18 +14,16 @@ namespace HackedBrain.ServiceBus.Core
 
 		private IMessageSender messageSender;
 		private IMessageReceiver messageReceiver;
-		private IMessageSerializer messageSerializer;
 		private IMessageMetadataProvider messageMetadataProvider;
 
 		#endregion
 
 		#region Constructors
 
-		public EventBus(IMessageSender messageSender, IMessageReceiver messageReceiver, IMessageSerializer messageSerializer, IMessageMetadataProvider messageMetadataProvider)
+		public EventBus(IMessageSender messageSender, IMessageReceiver messageReceiver, IMessageMetadataProvider messageMetadataProvider)
 		{
 			this.messageSender = messageSender;
 			this.messageReceiver = messageReceiver;
-			this.messageSerializer = messageSerializer;
 			this.messageMetadataProvider = messageMetadataProvider;
 		}
 
@@ -33,20 +31,20 @@ namespace HackedBrain.ServiceBus.Core
 
 		#region IEventBus implementation
 
-		public Task PublishEventAsync<TEvent>(TEvent eventMessage)
+		public Task PublishEventAsync<TEvent>(TEvent @event) where TEvent : class
 		{
-			IDictionary<string, object> serializedMessage = this.messageSerializer.Serialize<TEvent>(eventMessage);
+			IDictionary<string, object> metadata = this.messageMetadataProvider.GenerateMetadata(@event);
 
-			return this.messageSender.SendAsync(serializedMessage);
+			return this.messageSender.SendAsync<TEvent>(@event, metadata);
 		}
 
-		public IObservable<TEvent> WhenEventReceived<TEvent>()
+		public IObservable<TEvent> WhenEventReceived<TEvent>() where TEvent : class
 		{
 			Func<IDictionary<string, object>, bool> messageTypeFilter = this.messageMetadataProvider.GenerateMessageTypeFilter<TEvent>();
 			
 			return this.messageReceiver.WhenMessageReceived()
-						.Where(serializedMessage => messageTypeFilter(serializedMessage))
-						.Select(serializedMessage => this.messageSerializer.Deserialize<TEvent>(serializedMessage));
+						.Where(message => messageTypeFilter(message.Metadata))
+						.Select(message => message.GetBody<TEvent>());
 
 		}
 

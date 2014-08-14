@@ -8,8 +8,8 @@ namespace HackedBrain.ServiceBus
 {
 	public interface IEventBus
 	{
-		Task PublishEventAsync<TEvent>(TEvent eventMessage);
+		Task PublishEventAsync<TEvent>(TEvent eventMessage) where TEvent : class;
 
-		IObservable<TMessage> WhenEventReceived<TMessage>();
+		IObservable<TMessage> WhenEventReceived<TMessage>() where TMessage : class;
 	}
 }

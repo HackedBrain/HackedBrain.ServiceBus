@@ -13,18 +13,16 @@ namespace HackedBrain.ServiceBus.Core
 
 		private IMessageSender messageSender;
 		private IMessageReceiver messageReceiver;
-		private IMessageSerializer messageSerializer;
 		private IMessageMetadataProvider messageMetadataProvider;
 
 		#endregion
 
 		#region Constructors
 
-		public CommandBus(IMessageSender messageSender, IMessageReceiver messageReceiver, IMessageSerializer messageSerializer, IMessageMetadataProvider messageMetadataProvider)
+		public CommandBus(IMessageSender messageSender, IMessageReceiver messageReceiver, IMessageMetadataProvider messageMetadataProvider)
 		{
 			this.messageSender = messageSender;
 			this.messageReceiver = messageReceiver;
-			this.messageSerializer = messageSerializer;
 			this.messageMetadataProvider = messageMetadataProvider;
 		}
 
@@ -32,22 +30,20 @@ namespace HackedBrain.ServiceBus.Core
 
 		#region ICommandBus implementation
 
-		public Task SendCommandAsync<TCommand>(TCommand commandMessage)
+		public Task SendCommandAsync<TCommand>(TCommand commandMessage) where TCommand : class
 		{
-			IDictionary<string, object> serializedMessage = this.messageSerializer.Serialize<TCommand>(commandMessage);
+			IDictionary<string, object> metadata = this.messageMetadataProvider.GenerateMetadata<TCommand>(commandMessage);
 
-			this.messageMetadataProvider.ApplyMetadataToMessage<TCommand>(serializedMessage);
-
-			return this.messageSender.SendAsync(serializedMessage);
+			return this.messageSender.SendAsync(commandMessage, metadata);
 		}
 
-		public IObservable<TCommand> WhenCommandReceived<TCommand>()
+		public IObservable<TCommand> WhenCommandReceived<TCommand>() where TCommand : class
 		{
 			Func<IDictionary<string, object>, bool> messageTypeFilter = this.messageMetadataProvider.GenerateMessageTypeFilter<TCommand>();
 			
 			return this.messageReceiver.WhenMessageReceived()
-						.Where(serializedMessage => messageTypeFilter(serializedMessage))
-						.Select(serializedMessage => this.messageSerializer.Deserialize<TCommand>(serializedMessage));
+						.Where(message => messageTypeFilter(message.Metadata))
+						.Select(message => message.GetBody<TCommand>());
 
 
 		}

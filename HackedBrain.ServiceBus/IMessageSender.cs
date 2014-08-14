@@ -8,6 +8,6 @@ namespace HackedBrain.ServiceBus.Core
 {
 	public interface IMessageSender
 	{
-		Task SendAsync(IDictionary<string, object> serializedMessage);
+		Task SendAsync<TMessageBody>(TMessageBody body, IDictionary<string, object> metadata) where TMessageBody : class;
 	}
 }

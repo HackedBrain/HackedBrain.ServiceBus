@@ -8,19 +8,19 @@ using Microsoft.ServiceBus.Messaging;
 
 namespace HackedBrain.ServiceBus.Azure
 {
-	public class ServiceBusTopicMessageSender : IMessageSender
+	public class ServiceBusQueueMessageSender : IMessageSender
 	{
 		#region Fields
 
-		private TopicClient topicClient;		
+		private QueueClient queueClient;		
 
 		#endregion
 
 		#region Constructors
 
-		public ServiceBusTopicMessageSender(TopicClient topicClient)
+		public ServiceBusQueueMessageSender(QueueClient queueClient)
 		{
-			this.topicClient = topicClient;
+			this.queueClient = queueClient;
 		}
 
 		#endregion
@@ -36,7 +36,7 @@ namespace HackedBrain.ServiceBus.Azure
 				brokeredMessage.Properties.Add(entry);
 			}
 
-			return this.topicClient.SendAsync(brokeredMessage);
+			return this.queueClient.SendAsync(brokeredMessage);
 		}
 
 		#endregion

@@ -7,6 +7,6 @@ namespace HackedBrain.ServiceBus.Core
 {
 	public interface IMessageReceiver
 	{
-		IObservable<IDictionary<string, object>> WhenMessageReceived();
+		IObservable<IMessage> WhenMessageReceived();
 	}
 }

@@ -59,11 +59,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BrokeredMessageBasedMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServiceBusQueueMessageSender.cs" />
+    <Compile Include="ServiceBusQueueSessionMessageReceiver.cs" />
+    <Compile Include="ServiceBusTopicSessionMessageReceiver.cs" />
     <Compile Include="ServiceBusTopicMessageReceiver.cs" />
     <Compile Include="ServiceBusTopicMessageSender.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Hacked.Brain\HackedBrain.Azure\HackedBrain.Azure.ServiceBus\HackedBrain.Azure.ServiceBus.csproj">
+      <Project>{1a97bbf1-2144-49a6-a69d-01d13277951f}</Project>
+      <Name>HackedBrain.Azure.ServiceBus</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HackedBrain.ServiceBus\HackedBrain.ServiceBus.Core.csproj">
       <Project>{2889b1d5-6108-476c-8753-3dd534357232}</Project>
       <Name>HackedBrain.ServiceBus.Core</Name>

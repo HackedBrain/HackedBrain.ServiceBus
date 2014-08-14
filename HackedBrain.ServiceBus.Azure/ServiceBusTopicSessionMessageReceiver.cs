@@ -10,19 +10,19 @@ using System.Reactive.Linq;
 
 namespace HackedBrain.ServiceBus.Azure
 {
-	public class ServiceBusTopicMessageReceiver : IMessageReceiver
+	public class ServiceBusTopicSessionMessageReceiver : IMessageReceiver
 	{
 		#region Fields
 
-		private MessageReceiver messageReceiver;
+		private SubscriptionClient subscriptionClient;
 
 		#endregion
 
 		#region Constructors
 
-		public ServiceBusTopicMessageReceiver(MessageReceiver messageReceiver)
+		public ServiceBusTopicSessionMessageReceiver(SubscriptionClient subscriptionClient)
 		{
-			this.messageReceiver = messageReceiver;
+			this.subscriptionClient = subscriptionClient;
 		}
 
 		#endregion
@@ -31,9 +31,10 @@ namespace HackedBrain.ServiceBus.Azure
 
 		public IObservable<IMessage> WhenMessageReceived()
 		{
-			return this.messageReceiver
-				.WhenMessageReceived()
-				.Select(brokeredMessage => new BrokeredMessageBasedMessage(brokeredMessage));
+			return this.subscriptionClient
+				.WhenSessionAccepted()
+				.SelectMany(session => session.WhenMessageReceived()
+										.Select(brokeredMessage => new BrokeredMessageBasedMessage(brokeredMessage)));
 		}
 
 		#endregion
