@@ -27,11 +27,11 @@ namespace HackedBrain.ServiceBus.Azure
 
 		#region IMessage implementation
 
-		public IDictionary<string, object> Metadata
+		public IEnumerable<KeyValuePair<string, object>> Metadata
 		{
 			get
 			{
-				return this.brokeredMessage.Properties;
+				return this.brokeredMessage.Properties.Select(kvp => kvp);
 			}
 		}
 
@@ -59,6 +59,16 @@ namespace HackedBrain.ServiceBus.Azure
 		public Task AbandonAsync()
 		{
 			return this.brokeredMessage.AbandonAsync();
+		}
+
+		public void Quarantine(string reason, string description)
+		{
+			this.brokeredMessage.DeadLetter(reason, description);
+		}
+
+		public Task QuarantineAsync(string reason, string description)
+		{
+			return this.brokeredMessage.DeadLetterAsync(reason, description);
 		}
 
 

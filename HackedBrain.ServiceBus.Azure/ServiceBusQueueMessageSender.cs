@@ -27,7 +27,7 @@ namespace HackedBrain.ServiceBus.Azure
 
 		#region IMessageSender implementation
 
-		public Task SendAsync<TMessageBody>(TMessageBody body, IDictionary<string, object> metadata) where TMessageBody : class
+		public Task SendAsync<TMessageBody>(TMessageBody body, IEnumerable<KeyValuePair<string, object>> metadata) where TMessageBody : class
 		{
 			BrokeredMessage brokeredMessage = new BrokeredMessage(body);
 

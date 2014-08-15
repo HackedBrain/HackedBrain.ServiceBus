@@ -25,11 +25,6 @@ namespace HackedBrain.ServiceBus.Core
 
 		#region IMessageMetadataProvider implementation
 
-		public Func<IDictionary<string, object>, bool> GenerateMessageTypeFilter<TMessage>() where TMessage : class
-		{
-			return metadata => metadata[StandardMessageMetadataProvider.MessageTypeKey].Equals(typeof(TMessage).Name);
-		}
-
 		public IEnumerable<KeyValuePair<string, object>> GenerateMetadata<TMessage>(TMessage message) where TMessage : class
 		{
 			return this.metadataProviders.SelectMany(metadataProvider => metadataProvider.GenerateMetadata(message));

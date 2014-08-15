@@ -20,18 +20,13 @@ namespace HackedBrain.ServiceBus.Core
 
 		#region IMessageMetadataProvider implementation
 
-		public Func<IDictionary<string, object>, bool> GenerateMessageTypeFilter<TMessage>() where TMessage : class
-		{
-			return metadata => metadata[StandardMessageMetadataProvider.MessageTypeKey].Equals(typeof(TMessage).Name);
-		}
-
 		public IEnumerable<KeyValuePair<string, object>> GenerateMetadata<TMessage>(TMessage message) where TMessage : class
 		{
 			return new KeyValuePair<string, object>[]
 			{
-				{ StandardMessageMetadataProvider.ProviderVersionKey, StandardMessageMetadataProvider.ProviderVersionValue },
-				{ StandardMessageMetadataProvider.MessageTypeKey, typeof(TMessage).Name },
-				{ StandardMessageMetadataProvider.CreatedOnKey, DateTime.UtcNow },
+				new KeyValuePair<string, object>(StandardMessageMetadataProvider.ProviderVersionKey, StandardMessageMetadataProvider.ProviderVersionValue),
+				new KeyValuePair<string, object>(StandardMessageMetadataProvider.MessageTypeKey, typeof(TMessage).Name),
+				new KeyValuePair<string, object>(StandardMessageMetadataProvider.CreatedOnKey, DateTime.UtcNow),
 			};
 		}
 

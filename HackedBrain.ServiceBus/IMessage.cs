@@ -8,7 +8,7 @@ namespace HackedBrain.ServiceBus.Core
 {
 	public interface IMessage
 	{
-		IDictionary<string, object> Metadata
+		IEnumerable<KeyValuePair<string, object>> Metadata
 		{
 			get;
 		}
@@ -22,5 +22,9 @@ namespace HackedBrain.ServiceBus.Core
 		void Abandon();
 
 		Task AbandonAsync();
+
+		void Quarantine(string reason, string description);
+
+		Task QuarantineAsync(string reason, string description);
 	}
 }

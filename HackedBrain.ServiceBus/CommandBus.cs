@@ -32,20 +32,9 @@ namespace HackedBrain.ServiceBus.Core
 
 		public Task SendCommandAsync<TCommand>(TCommand commandMessage) where TCommand : class
 		{
-			IDictionary<string, object> metadata = this.messageMetadataProvider.GenerateMetadata<TCommand>(commandMessage);
+			IEnumerable<KeyValuePair<string, object>> metadata = this.messageMetadataProvider.GenerateMetadata<TCommand>(commandMessage);
 
 			return this.messageSender.SendAsync(commandMessage, metadata);
-		}
-
-		public IObservable<TCommand> WhenCommandReceived<TCommand>() where TCommand : class
-		{
-			Func<IDictionary<string, object>, bool> messageTypeFilter = this.messageMetadataProvider.GenerateMessageTypeFilter<TCommand>();
-			
-			return this.messageReceiver.WhenMessageReceived()
-						.Where(message => messageTypeFilter(message.Metadata))
-						.Select(message => message.GetBody<TCommand>());
-
-
 		}
 
 		#endregion

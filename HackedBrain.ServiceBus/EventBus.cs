@@ -33,19 +33,9 @@ namespace HackedBrain.ServiceBus.Core
 
 		public Task PublishEventAsync<TEvent>(TEvent @event) where TEvent : class
 		{
-			IDictionary<string, object> metadata = this.messageMetadataProvider.GenerateMetadata(@event);
+			IEnumerable<KeyValuePair<string, object>> metadata = this.messageMetadataProvider.GenerateMetadata(@event);
 
 			return this.messageSender.SendAsync<TEvent>(@event, metadata);
-		}
-
-		public IObservable<TEvent> WhenEventReceived<TEvent>() where TEvent : class
-		{
-			Func<IDictionary<string, object>, bool> messageTypeFilter = this.messageMetadataProvider.GenerateMessageTypeFilter<TEvent>();
-			
-			return this.messageReceiver.WhenMessageReceived()
-						.Where(message => messageTypeFilter(message.Metadata))
-						.Select(message => message.GetBody<TEvent>());
-
 		}
 
 		#endregion
