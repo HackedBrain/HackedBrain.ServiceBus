@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HackedBrain.ServiceBus.Core
 {
@@ -25,7 +22,7 @@ namespace HackedBrain.ServiceBus.Core
 			return new KeyValuePair<string, object>[]
 			{
 				new KeyValuePair<string, object>(StandardMessageMetadataProvider.ProviderVersionKey, StandardMessageMetadataProvider.ProviderVersionValue),
-				new KeyValuePair<string, object>(StandardMessageMetadataProvider.MessageTypeKey, typeof(TMessage).Name),
+				new KeyValuePair<string, object>(StandardMessageMetadataProvider.MessageTypeKey, typeof(TMessage).FullName),
 				new KeyValuePair<string, object>(StandardMessageMetadataProvider.CreatedOnKey, DateTime.UtcNow),
 			};
 		}

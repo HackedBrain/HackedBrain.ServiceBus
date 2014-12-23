@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Threading;
 using System.Threading.Tasks;
 
 namespace HackedBrain.ServiceBus
 {
 	public interface IEventBus
 	{
-		Task PublishEventAsync<TEvent>(TEvent eventMessage) where TEvent : class;
+        Task PublishEventAsync<TEvent>(TEvent eventMessage, CancellationToken cancellationToken) where TEvent : class;
 	}
 }

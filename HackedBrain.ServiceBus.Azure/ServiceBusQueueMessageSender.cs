@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using HackedBrain.ServiceBus.Core;
 using Microsoft.ServiceBus.Messaging;
@@ -27,7 +25,7 @@ namespace HackedBrain.ServiceBus.Azure
 
 		#region IMessageSender implementation
 
-		public Task SendAsync<TMessageBody>(TMessageBody body, IEnumerable<KeyValuePair<string, object>> metadata) where TMessageBody : class
+        public Task SendAsync<TMessageBody>(TMessageBody body, IEnumerable<KeyValuePair<string, object>> metadata, CancellationToken cancellationToken) where TMessageBody : class
 		{
 			BrokeredMessage brokeredMessage = new BrokeredMessage(body);
 
@@ -35,6 +33,8 @@ namespace HackedBrain.ServiceBus.Azure
 			{
 				brokeredMessage.Properties.Add(entry);
 			}
+
+            cancellationToken.ThrowIfCancellationRequested();
 
 			return this.queueClient.SendAsync(brokeredMessage);
 		}

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Reactive;
-using System.Reactive.Linq;
 
 namespace HackedBrain.ServiceBus.Core
 {
@@ -31,11 +27,11 @@ namespace HackedBrain.ServiceBus.Core
 
 		#region IEventBus implementation
 
-		public Task PublishEventAsync<TEvent>(TEvent @event) where TEvent : class
+		public Task PublishEventAsync<TEvent>(TEvent @event, CancellationToken cancellationToken) where TEvent : class
 		{
 			IEnumerable<KeyValuePair<string, object>> metadata = this.messageMetadataProvider.GenerateMetadata(@event);
 
-			return this.messageSender.SendAsync<TEvent>(@event, metadata);
+			return this.messageSender.SendAsync<TEvent>(@event, metadata, cancellationToken);
 		}
 
 		#endregion

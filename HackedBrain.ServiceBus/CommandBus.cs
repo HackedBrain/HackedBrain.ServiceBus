@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Reactive.Linq;
 
 namespace HackedBrain.ServiceBus.Core
 {
@@ -30,11 +27,11 @@ namespace HackedBrain.ServiceBus.Core
 
 		#region ICommandBus implementation
 
-		public Task SendCommandAsync<TCommand>(TCommand commandMessage) where TCommand : class
+		public Task SendCommandAsync<TCommand>(TCommand commandMessage, CancellationToken cancellationToken) where TCommand : class
 		{
 			IEnumerable<KeyValuePair<string, object>> metadata = this.messageMetadataProvider.GenerateMetadata<TCommand>(commandMessage);
 
-			return this.messageSender.SendAsync(commandMessage, metadata);
+            return this.messageSender.SendAsync(commandMessage, metadata, cancellationToken);
 		}
 
 		#endregion

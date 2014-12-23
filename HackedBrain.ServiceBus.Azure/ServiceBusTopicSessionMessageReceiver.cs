@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HackedBrain.ServiceBus.Core;
-using Microsoft.ServiceBus.Messaging;
-using HackedBrain.WindowsAzure.ServiceBus.Messaging;
 using System.Reactive.Linq;
+using HackedBrain.ServiceBus.Core;
+using HackedBrain.WindowsAzure.ServiceBus.Messaging;
+using Microsoft.ServiceBus.Messaging;
 
 namespace HackedBrain.ServiceBus.Azure
 {

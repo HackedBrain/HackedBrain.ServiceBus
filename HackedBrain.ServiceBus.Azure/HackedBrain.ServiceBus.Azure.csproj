@@ -30,6 +30,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="HackedBrain.Azure.ServiceBus, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\HackedBrain.ServiceBus\packages\HackedBrain.Azure.ServiceBus.0.1.0-beta\lib\net45\HackedBrain.Azure.ServiceBus.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.ServiceBus, Version=2.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\HackedBrain.ServiceBus\packages\WindowsAzure.ServiceBus.2.3.4.0\lib\net40-full\Microsoft.ServiceBus.dll</HintPath>
     </Reference>
@@ -68,19 +72,13 @@
     <Compile Include="ServiceBusTopicMessageSender.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Hacked.Brain\HackedBrain.Azure\HackedBrain.Azure.ServiceBus\HackedBrain.Azure.ServiceBus.csproj">
-      <Project>{1a97bbf1-2144-49a6-a69d-01d13277951f}</Project>
-      <Name>HackedBrain.Azure.ServiceBus</Name>
-    </ProjectReference>
     <ProjectReference Include="..\HackedBrain.ServiceBus\HackedBrain.ServiceBus.Core.csproj">
       <Project>{2889b1d5-6108-476c-8753-3dd534357232}</Project>
       <Name>HackedBrain.ServiceBus.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="packages.config" />
-    <None Include="Performance\Microsoft.ServiceBus.MessagingPerformanceCounters.man" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
