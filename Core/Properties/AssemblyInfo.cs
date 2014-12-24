@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 
 [assembly: AssemblyTitle("HackedBrain.ServiceBus.Core")]
 [assembly: AssemblyDescription("")]
@@ -17,3 +18,5 @@
 
 [assembly: AssemblyVersion("0.0.1.*")]
 [assembly: AssemblyInformationalVersion("0.0.1-alpha-1")]
+
+[assembly: InternalsVisibleTo("HackedBrain.ServiceBus.Core.Tests")]

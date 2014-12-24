@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -29,7 +30,12 @@ namespace HackedBrain.ServiceBus.Core
 
 		public Task PublishEventAsync<TEvent>(TEvent @event, CancellationToken cancellationToken) where TEvent : class
 		{
-			IEnumerable<KeyValuePair<string, object>> metadata = this.messageMetadataProvider.GenerateMetadata(@event);
+			if(@event == null)
+            {
+                throw new ArgumentNullException("event");
+            }
+            
+            IEnumerable<KeyValuePair<string, object>> metadata = this.messageMetadataProvider.GenerateMetadata(@event);
 
 			return this.messageSender.SendAsync<TEvent>(@event, metadata, cancellationToken);
 		}

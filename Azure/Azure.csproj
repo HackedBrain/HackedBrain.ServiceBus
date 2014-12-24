@@ -72,9 +72,9 @@
     <Compile Include="ServiceBusTopicMessageSender.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\HackedBrain.ServiceBus\HackedBrain.ServiceBus.Core.csproj">
+    <ProjectReference Include="..\Core\Core.csproj">
       <Project>{2889b1d5-6108-476c-8753-3dd534357232}</Project>
-      <Name>HackedBrain.ServiceBus.Core</Name>
+      <Name>Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

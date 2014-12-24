@@ -5,6 +5,6 @@ namespace HackedBrain.ServiceBus
 {
 	public interface IEventBus
 	{
-        Task PublishEventAsync<TEvent>(TEvent eventMessage, CancellationToken cancellationToken) where TEvent : class;
+        Task PublishEventAsync<TEvent>(TEvent @event, CancellationToken cancellationToken) where TEvent : class;
 	}
 }

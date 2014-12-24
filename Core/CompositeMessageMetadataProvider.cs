@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace HackedBrain.ServiceBus.Core
@@ -15,7 +16,12 @@ namespace HackedBrain.ServiceBus.Core
 
 		public CompositeMessageMetadataProvider(IEnumerable<IMessageMetadataProvider> metadataProviders)
 		{
-			this.metadataProviders = metadataProviders;
+			if(metadataProviders == null)
+            {
+                throw new ArgumentNullException("metadataProviders");
+            }
+            
+            this.metadataProviders = metadataProviders;
 		}
 
 		#endregion
@@ -24,7 +30,12 @@ namespace HackedBrain.ServiceBus.Core
 
 		public IEnumerable<KeyValuePair<string, object>> GenerateMetadata<TMessage>(TMessage message) where TMessage : class
 		{
-			return this.metadataProviders.SelectMany(metadataProvider => metadataProvider.GenerateMetadata(message));
+			if(message == null)
+            {
+                throw new ArgumentNullException("message");
+            }
+            
+            return this.metadataProviders.SelectMany(metadataProvider => metadataProvider.GenerateMetadata(message));
 		}
 
 		#endregion

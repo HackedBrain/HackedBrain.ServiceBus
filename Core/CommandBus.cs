@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -27,11 +28,16 @@ namespace HackedBrain.ServiceBus.Core
 
 		#region ICommandBus implementation
 
-		public Task SendCommandAsync<TCommand>(TCommand commandMessage, CancellationToken cancellationToken) where TCommand : class
+		public Task SendCommandAsync<TCommand>(TCommand command, CancellationToken cancellationToken) where TCommand : class
 		{
-			IEnumerable<KeyValuePair<string, object>> metadata = this.messageMetadataProvider.GenerateMetadata<TCommand>(commandMessage);
+			if(command == null)
+            {
+                throw new ArgumentNullException("command");
+            }
+            
+            IEnumerable<KeyValuePair<string, object>> metadata = this.messageMetadataProvider.GenerateMetadata<TCommand>(command);
 
-            return this.messageSender.SendAsync(commandMessage, metadata, cancellationToken);
+            return this.messageSender.SendAsync(command, metadata, cancellationToken);
 		}
 
 		#endregion
