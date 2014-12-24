@@ -10,17 +10,15 @@ namespace HackedBrain.ServiceBus.Core
 		#region Fields
 
 		private IMessageSender messageSender;
-		private IMessageReceiver messageReceiver;
 		private IMessageMetadataProvider messageMetadataProvider;
 
 		#endregion
 
 		#region Constructors
 
-		public CommandBus(IMessageSender messageSender, IMessageReceiver messageReceiver, IMessageMetadataProvider messageMetadataProvider)
+        public CommandBus(IMessageSender messageSender, IMessageMetadataProvider messageMetadataProvider)
 		{
 			this.messageSender = messageSender;
-			this.messageReceiver = messageReceiver;
 			this.messageMetadataProvider = messageMetadataProvider;
 		}
 
