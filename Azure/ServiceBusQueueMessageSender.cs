@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using HackedBrain.ServiceBus.Core;
@@ -28,6 +29,14 @@ namespace HackedBrain.ServiceBus.Azure
         public Task SendAsync<TMessageBody>(TMessageBody body, IEnumerable<KeyValuePair<string, object>> metadata, CancellationToken cancellationToken) where TMessageBody : class
 		{
 			BrokeredMessage brokeredMessage = new BrokeredMessage(body);
+            brokeredMessage.MessageId = Guid.NewGuid().ToString("N");
+
+            IMessageSessionIdProvider messageSessionIdProvider = body as IMessageSessionIdProvider;
+
+            if(messageSessionIdProvider != null)
+            {
+                brokeredMessage.SessionId = messageSessionIdProvider.SessionId;
+            }
 
 			foreach(KeyValuePair<string, object> entry in metadata)
 			{

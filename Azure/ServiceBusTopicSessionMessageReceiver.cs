@@ -25,11 +25,11 @@ namespace HackedBrain.ServiceBus.Azure
 
 		#region IMessageReceiver implementation
 
-		public IObservable<IMessage> WhenMessageReceived()
+		public IObservable<IMessage> WhenMessageReceived(TimeSpan waitTimeout = default(TimeSpan))
 		{
 			return this.subscriptionClient
-				.WhenSessionAccepted()
-				.SelectMany(session => session.WhenMessageReceived()
+				.WhenSessionAccepted(waitTimeout)
+				.SelectMany(session => session.WhenMessageReceived(waitTimeout)
 										.Select(brokeredMessage => new BrokeredMessageBasedMessage(brokeredMessage)));
 		}
 

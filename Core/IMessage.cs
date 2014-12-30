@@ -1,27 +1,33 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace HackedBrain.ServiceBus.Core
 {
-	public interface IMessage
-	{
-		IEnumerable<KeyValuePair<string, object>> Metadata
-		{
-			get;
-		}
+    public interface IMessage
+    {
+        Guid Id
+        {
+            get;
+        }
 
-		T GetBody<T>() where T : class;
+        IEnumerable<KeyValuePair<string, object>> Metadata
+        {
+            get;
+        }
 
-		void Complete();
+        T GetBody<T>() where T : class;
 
-		Task CompleteAsync();
+        void Complete();
 
-		void Abandon();
+        Task CompleteAsync();
 
-		Task AbandonAsync();
+        void Abandon();
 
-		void Quarantine(string reason, string description);
+        Task AbandonAsync();
 
-		Task QuarantineAsync(string reason, string description);
-	}
+        void Quarantine(string reason, string description);
+
+        Task QuarantineAsync(string reason, string description);
+    }
 }

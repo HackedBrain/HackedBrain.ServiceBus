@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HackedBrain.ServiceBus.Core;
@@ -24,6 +25,14 @@ namespace HackedBrain.ServiceBus.Azure
 		#endregion
 
 		#region IMessage implementation
+
+        public Guid Id
+        {
+            get
+            {
+                return new Guid(this.brokeredMessage.MessageId);
+            }
+        }
 
 		public IEnumerable<KeyValuePair<string, object>> Metadata
 		{

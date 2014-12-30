@@ -25,7 +25,7 @@ namespace HackedBrain.ServiceBus.Azure
 
 		#region IMessageReceiver implementation
 
-		public IObservable<IMessage> WhenMessageReceived()
+		public IObservable<IMessage> WhenMessageReceived(TimeSpan waitTimeout = default(TimeSpan))
 		{
 			return this.queueClient
 				.WhenSessionAccepted()

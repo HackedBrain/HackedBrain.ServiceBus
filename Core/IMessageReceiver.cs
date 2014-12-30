@@ -2,8 +2,8 @@
 
 namespace HackedBrain.ServiceBus.Core
 {
-	public interface IMessageReceiver
-	{
-		IObservable<IMessage> WhenMessageReceived();
-	}
+    public interface IMessageReceiver
+    {
+        IObservable<IMessage> WhenMessageReceived(TimeSpan waitTimeout = default(TimeSpan));
+    }
 }
