@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azure", "Azure\Azure.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Tests", "Core.Tests\Core.Tests.csproj", "{CFDC78DF-4B6B-4E72-B491-03527EFA2135}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serializers", "Serializers\Serializers.csproj", "{62991180-D8E6-491F-8235-9ECEC06E5631}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +31,10 @@ Global
 		{CFDC78DF-4B6B-4E72-B491-03527EFA2135}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CFDC78DF-4B6B-4E72-B491-03527EFA2135}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CFDC78DF-4B6B-4E72-B491-03527EFA2135}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62991180-D8E6-491F-8235-9ECEC06E5631}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62991180-D8E6-491F-8235-9ECEC06E5631}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62991180-D8E6-491F-8235-9ECEC06E5631}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62991180-D8E6-491F-8235-9ECEC06E5631}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

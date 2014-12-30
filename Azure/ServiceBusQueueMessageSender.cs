@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using HackedBrain.ServiceBus.Core;
@@ -7,47 +8,56 @@ using Microsoft.ServiceBus.Messaging;
 
 namespace HackedBrain.ServiceBus.Azure
 {
-	public class ServiceBusQueueMessageSender : IMessageSender
-	{
-		#region Fields
+    public class ServiceBusQueueMessageSender : IMessageSender
+    {
+        #region Fields
 
-		private QueueClient queueClient;		
+        private QueueClient queueClient;
+        private IMessageBodySerializer messageBodySerializer;		
 
-		#endregion
+        #endregion
 
-		#region Constructors
+        #region Constructors
 
-		public ServiceBusQueueMessageSender(QueueClient queueClient)
-		{
-			this.queueClient = queueClient;
-		}
+        public ServiceBusQueueMessageSender(QueueClient queueClient, IMessageBodySerializer messageBodySerializer)
+        {
+            this.queueClient = queueClient;
+            this.messageBodySerializer = messageBodySerializer;
+        }
 
-		#endregion
+        #endregion
 
-		#region IMessageSender implementation
+        #region IMessageSender implementation
 
         public Task SendAsync<TMessageBody>(TMessageBody body, IEnumerable<KeyValuePair<string, object>> metadata, CancellationToken cancellationToken) where TMessageBody : class
-		{
-			BrokeredMessage brokeredMessage = new BrokeredMessage(body);
-            brokeredMessage.MessageId = Guid.NewGuid().ToString("N");
-
-            IMessageSessionIdProvider messageSessionIdProvider = body as IMessageSessionIdProvider;
-
-            if(messageSessionIdProvider != null)
+        {
+            using(MemoryStream bodyStream = new MemoryStream())
             {
-                brokeredMessage.SessionId = messageSessionIdProvider.SessionId;
+                this.messageBodySerializer.SerializeBody(body, bodyStream);
+
+                cancellationToken.ThrowIfCancellationRequested();
+            
+                BrokeredMessage brokeredMessage = new BrokeredMessage(bodyStream);
+                brokeredMessage.MessageId = Guid.NewGuid().ToString("N");
+
+                IMessageSessionIdProvider messageSessionIdProvider = body as IMessageSessionIdProvider;
+
+                if(messageSessionIdProvider != null)
+                {
+                    brokeredMessage.SessionId = messageSessionIdProvider.SessionId;
+                }
+
+                foreach(KeyValuePair<string, object> entry in metadata)
+                {
+                    brokeredMessage.Properties.Add(entry);
+                }
+
+                cancellationToken.ThrowIfCancellationRequested();
+
+                return this.queueClient.SendAsync(brokeredMessage);
             }
+        }
 
-			foreach(KeyValuePair<string, object> entry in metadata)
-			{
-				brokeredMessage.Properties.Add(entry);
-			}
-
-            cancellationToken.ThrowIfCancellationRequested();
-
-			return this.queueClient.SendAsync(brokeredMessage);
-		}
-
-		#endregion
-	}
+        #endregion
+    }
 }
