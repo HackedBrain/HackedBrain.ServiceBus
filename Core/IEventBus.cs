@@ -14,7 +14,7 @@ namespace HackedBrain.ServiceBus.Core
 
     public interface IEventBus
     {
-        Task PublishEventAsync(Envelope<IEvent> eventEnvelope, CancellationToken cancellationToken);
-        Task PublishEventsAsync(IEnumerable<Envelope<IEvent>> eventEnvelopes, CancellationToken cancellationToken);
+        Task PublishEventAsync<TEvent>(TEvent @event, CancellationToken cancellationToken) where TEvent : IEvent;
+        Task PublishEventsAsync(IEnumerable<IEvent> events, CancellationToken cancellationToken);
     }
 }

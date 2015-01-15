@@ -6,32 +6,32 @@ using Microsoft.ServiceBus.Messaging;
 
 namespace HackedBrain.ServiceBus.Azure
 {
-	public class ServiceBusTopicMessageReceiver : IMessageReceiver
-	{
-		#region Fields
+    public class ServiceBusTopicMessageReceiver : IMessageReceiver
+    {
+        #region Fields
 
-		private MessageReceiver messageReceiver;
+        private MessageReceiver messageReceiver;
 
-		#endregion
+        #endregion
 
-		#region Constructors
+        #region Constructors
 
-		public ServiceBusTopicMessageReceiver(MessageReceiver messageReceiver)
-		{
-			this.messageReceiver = messageReceiver;
-		}
+        public ServiceBusTopicMessageReceiver(MessageReceiver messageReceiver)
+        {
+            this.messageReceiver = messageReceiver;
+        }
 
-		#endregion
+        #endregion
 
-		#region IMessageReceiver implementation
+        #region IMessageReceiver implementation
 
-		public IObservable<IMessage> WhenMessageReceived(TimeSpan waitTimeout = default(TimeSpan))
-		{
-			return this.messageReceiver
-				.WhenMessageReceived(waitTimeout)
-				.Select(brokeredMessage => new BrokeredMessageBasedMessage(brokeredMessage));
-		}
+        public IObservable<IMessage<TMessageBody>> WhenMessageReceived<TMessageBody>(TimeSpan waitTimeout = default(TimeSpan))
+        {
+            return this.messageReceiver
+                .WhenMessageReceived(waitTimeout)
+                .Select(brokeredMessage => brokeredMessage.ToMessage<TMessageBody>());
+        }
 
-		#endregion
-	}
+        #endregion
+    }
 }

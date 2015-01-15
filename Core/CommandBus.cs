@@ -11,13 +11,15 @@ namespace HackedBrain.ServiceBus.Core
 
         private IMessageSender messageSender;
         private IMessageMetadataProvider messageMetadataProvider;
+        private ICommandMessageBuilder messageBuilder;
 
         #endregion
 
         #region Constructors
 
-        public CommandBus(IMessageSender messageSender, IMessageMetadataProvider messageMetadataProvider)
+        public CommandBus(ICommandMessageBuilder messageBuilder, IMessageSender messageSender, IMessageMetadataProvider messageMetadataProvider)
         {
+            this.messageBuilder = messageBuilder;
             this.messageSender = messageSender;
             this.messageMetadataProvider = messageMetadataProvider;
         }
@@ -26,26 +28,36 @@ namespace HackedBrain.ServiceBus.Core
 
         #region ICommandBus implementation
 
-        public Task SendCommandAsync(Envelope<ICommand> commandEnvelope, CancellationToken cancellationToken)
+        public Task SendCommandAsync<TCommand>(TCommand command, CancellationToken cancellationToken) where TCommand : ICommand
         {
-            if(commandEnvelope == null)
+            if(command == null)
             {
                 throw new ArgumentNullException("commandEnvelope");
             }
 
-            IEnumerable<KeyValuePair<string, object>> metadata = this.messageMetadataProvider.GenerateMetadata(commandEnvelope.Body);
+            if(cancellationToken == null)
+            {
+                throw new ArgumentNullException("cancellationToken");
+            }
 
-            return this.messageSender.SendAsync(commandEnvelope, metadata, cancellationToken);
+            IMessage<TCommand> message = this.messageBuilder.BuildMessage(command);
+
+            return this.messageSender.SendAsync(message, cancellationToken);
         }
 
-        public async Task SendCommandsAsync(IEnumerable<Envelope<ICommand>> commandEnvelopes, CancellationToken cancellationToken)
+        public async Task SendCommandsAsync(IEnumerable<ICommand> commands, CancellationToken cancellationToken)
         {
-            if(commandEnvelopes == null)
+            if(commands == null)
             {
                 throw new ArgumentNullException("commandEnvelopes");
             }
+
+            if(cancellationToken == null)
+            {
+                throw new ArgumentNullException("cancellationToken");
+            }
             
-            foreach(Envelope<ICommand> commandEnvelope in commandEnvelopes)
+            foreach(ICommand commandEnvelope in commands)
             {
                 await this.SendCommandAsync(commandEnvelope, cancellationToken);
 

@@ -15,7 +15,8 @@ namespace HackedBrain.ServiceBus
 
     public interface ICommandBus
     {
-        Task SendCommandAsync(Envelope<ICommand> commandEnvelope, CancellationToken cancellationToken);
-        Task SendCommandsAsync(IEnumerable<Envelope<ICommand>> commandEnvelopes, CancellationToken cancellationToken);
+        Task SendCommandAsync<TCommand>(TCommand command, CancellationToken cancellationToken) where TCommand : ICommand;
+
+        Task SendCommandsAsync(IEnumerable<ICommand> commands, CancellationToken cancellationToken);
     }
 }

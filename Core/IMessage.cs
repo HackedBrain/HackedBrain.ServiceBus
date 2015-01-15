@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 
 namespace HackedBrain.ServiceBus.Core
 {
-    public interface IMessage
+    public interface IMessage<TBody>
     {
-        Guid Id
+        string Id
         {
             get;
         }
@@ -26,12 +26,9 @@ namespace HackedBrain.ServiceBus.Core
             get;
         }
 
-        T GetBody<T>() where T : class;
-
-        Task CompleteAsync();
-
-        Task AbandonAsync();
-
-        Task QuarantineAsync(string reason, string description);
+        TBody Body
+        {
+            get;
+        }
     }
 }

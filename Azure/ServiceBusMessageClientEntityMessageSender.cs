@@ -28,22 +28,22 @@ namespace HackedBrain.ServiceBus.Azure
 
         #region IMessageSender implementation
 
-        public Task SendAsync<TMessageBody>(Envelope<TMessageBody> envelope, IEnumerable<KeyValuePair<string, object>> metadata, CancellationToken cancellationToken)
+        public Task SendAsync<TMessageBody>(IMessage<TMessageBody> message, CancellationToken cancellationToken)
         {
-            BrokeredMessage brokeredMessage = new BrokeredMessage(envelope.Body);
-            brokeredMessage.MessageId = envelope.MessageId ?? Guid.NewGuid().ToString("N");
+            BrokeredMessage brokeredMessage = new BrokeredMessage(message.Body);
+            brokeredMessage.MessageId = message.Id ?? Guid.NewGuid().ToString("N");
 
-            if(envelope.CorrelationId != null)
+            if(message.CorrelationId != null)
             {
-                brokeredMessage.CorrelationId = envelope.CorrelationId;
+                brokeredMessage.CorrelationId = message.CorrelationId;
             }
 
-            if(envelope.SessionId != null)
+            if(message.SessionId != null)
             {
-                brokeredMessage.SessionId = envelope.SessionId;
+                brokeredMessage.SessionId = message.SessionId;
             }
 
-            foreach(KeyValuePair<string, object> entry in metadata)
+            foreach(KeyValuePair<string, object> entry in message.Metadata)
             {
                 brokeredMessage.Properties.Add(entry);
             }

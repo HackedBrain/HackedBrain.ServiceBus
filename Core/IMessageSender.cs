@@ -6,6 +6,6 @@ namespace HackedBrain.ServiceBus.Core
 {
     public interface IMessageSender
     {
-        Task SendAsync<TMessageBody>(Envelope<TMessageBody> envelope, IEnumerable<KeyValuePair<string, object>> metadata, CancellationToken cancellationToken);
+        Task SendAsync<TMessageBody>(IMessage<TMessageBody> message, CancellationToken cancellationToken);
     }
 }

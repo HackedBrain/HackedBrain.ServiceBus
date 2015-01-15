@@ -15,11 +15,11 @@ namespace HackedBrain.ServiceBus.Core.Tests
             [Fact]
             public void PublishingNullEventThrows()
             {
-                EventBus eventBus = new EventBus(new Mock<IMessageSender>().Object, new Mock<IMessageMetadataProvider>().Object);
+                EventBus eventBus = new EventBus(new Mock<IEventMessageBuilder>().Object, new Mock<IMessageSender>().Object, new Mock<IMessageMetadataProvider>().Object);
 
                 Func<Task> publishEventAsync = async () =>
                 {
-                    await eventBus.PublishEventAsync(null, CancellationToken.None);
+                    await eventBus.PublishEventAsync((IEvent)null, CancellationToken.None);
                 };
 
                 publishEventAsync.ShouldThrow<ArgumentNullException>();
@@ -30,7 +30,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
             {
                 Mock<IMessageMetadataProvider> mockMessageMetadataProvider = new Mock<IMessageMetadataProvider>();
 
-                EventBus eventBus = new EventBus(new Mock<IMessageSender>().Object, mockMessageMetadataProvider.Object);
+                EventBus eventBus = new EventBus(new Mock<IEventMessageBuilder>().Object, new Mock<IMessageSender>().Object, mockMessageMetadataProvider.Object);
 
                 TestEvent testEvent = new TestEvent();
                 
@@ -45,6 +45,13 @@ namespace HackedBrain.ServiceBus.Core.Tests
             [Fact]
             public async Task PublishingEventSendsViaMessageSender()
             {
+                Mock<IMessage<TestEvent>> mockMessage = new Mock<IMessage<TestEvent>>();
+
+                Mock<IEventMessageBuilder> mockMessageBuilder = new Mock<IEventMessageBuilder>();
+                mockMessageBuilder.Setup(mb => mb.BuildMessage<TestEvent>(It.IsAny<TestEvent>()))
+                    .Returns(mockMessage.Object);
+                
+                
                 Mock<IMessageSender> mockMessageSender = new Mock<IMessageSender>();
 
                 Dictionary<string, object> testMetadata = new Dictionary<string,object>();
@@ -53,7 +60,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
                 mockMessageMetadataProvider.Setup(mmp => mmp.GenerateMetadata<TestEvent>(It.IsAny<TestEvent>()))
                     .Returns(testMetadata);
 
-                EventBus eventBus = new EventBus(mockMessageSender.Object, mockMessageMetadataProvider.Object);
+                EventBus eventBus = new EventBus(mockMessageBuilder.Object, mockMessageSender.Object, mockMessageMetadataProvider.Object);
 
                 TestEvent testEvent = new TestEvent();
                 CancellationToken testCancellationToken = new CancellationToken();
@@ -62,8 +69,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
 
                 mockMessageSender.Verify(ms => 
                     ms.SendAsync(
-                        It.Is<Envelope<IEvent>>(e => Object.ReferenceEquals(e.Body, testEvent)),
-                        It.Is<IDictionary<string, object>>(d => Object.ReferenceEquals(d, testMetadata)),
+                        It.Is<IMessage<TestEvent>>(m => Object.ReferenceEquals(m.Body, testEvent)),
                         It.Is<CancellationToken>(ct => ct == testCancellationToken)),
                         Times.Once());
             }
