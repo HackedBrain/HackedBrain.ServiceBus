@@ -5,39 +5,54 @@ using System.Threading.Tasks;
 
 namespace HackedBrain.ServiceBus.Core
 {
-	public class EventBus : IEventBus
-	{
-		#region Fields
+    public class EventBus : IEventBus
+    {
+        #region Fields
 
-		private IMessageSender messageSender;
-		private IMessageMetadataProvider messageMetadataProvider;
+        private IMessageSender messageSender;
+        private IMessageMetadataProvider messageMetadataProvider;
 
-		#endregion
+        #endregion
 
-		#region Constructors
+        #region Constructors
 
         public EventBus(IMessageSender messageSender, IMessageMetadataProvider messageMetadataProvider)
-		{
-			this.messageSender = messageSender;
-			this.messageMetadataProvider = messageMetadataProvider;
-		}
+        {
+            this.messageSender = messageSender;
+            this.messageMetadataProvider = messageMetadataProvider;
+        }
 
-		#endregion
+        #endregion
 
-		#region IEventBus implementation
+        #region IEventBus implementation
 
-		public Task PublishEventAsync<TEvent>(TEvent @event, CancellationToken cancellationToken) where TEvent : class
-		{
-			if(@event == null)
+        public Task PublishEventAsync(Envelope<IEvent> eventEnvelope, CancellationToken cancellationToken)
+        {
+            if(eventEnvelope == null)
             {
-                throw new ArgumentNullException("event");
+                throw new ArgumentNullException("eventEnvelope");
             }
             
-            IEnumerable<KeyValuePair<string, object>> metadata = this.messageMetadataProvider.GenerateMetadata(@event);
+            IEnumerable<KeyValuePair<string, object>> metadata = this.messageMetadataProvider.GenerateMetadata(eventEnvelope.Body);
 
-			return this.messageSender.SendAsync<TEvent>(@event, metadata, cancellationToken);
-		}
+            return this.messageSender.SendAsync(eventEnvelope, metadata, cancellationToken);
+        }
 
-		#endregion
-	}
+        public async Task PublishEventsAsync(IEnumerable<Envelope<IEvent>> eventEnvelopes, CancellationToken cancellationToken)
+        {
+            if(eventEnvelopes == null)
+            {
+                throw new ArgumentNullException("eventEnvelopes");
+            }
+            
+            foreach(Envelope<IEvent> eventEnvelope in eventEnvelopes)
+            {
+                await this.PublishEventAsync(eventEnvelope, cancellationToken);
+
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+        }
+
+        #endregion
+    }
 }

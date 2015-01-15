@@ -28,7 +28,7 @@ namespace HackedBrain.ServiceBus.Core
 
 		#region IMessageMetadataProvider implementation
 
-		public IEnumerable<KeyValuePair<string, object>> GenerateMetadata<TMessage>(TMessage message) where TMessage : class
+		public IEnumerable<KeyValuePair<string, object>> GenerateMetadata<TMessage>(TMessage message)
 		{
 			if(message == null)
             {

@@ -19,7 +19,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
 
                 Func<Task> publishEventAsync = async () =>
                 {
-                    await eventBus.PublishEventAsync((object)null, CancellationToken.None);
+                    await eventBus.PublishEventAsync(null, CancellationToken.None);
                 };
 
                 publishEventAsync.ShouldThrow<ArgumentNullException>();
@@ -38,7 +38,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
 
                 mockMessageMetadataProvider.Verify(mmp => 
                     mmp.GenerateMetadata(
-                        It.Is<TestEvent>(c => Object.ReferenceEquals(c, testEvent))),
+                        It.Is<IEvent>(c => Object.ReferenceEquals(c, testEvent))),
                         Times.Once());
             }
 
@@ -62,16 +62,30 @@ namespace HackedBrain.ServiceBus.Core.Tests
 
                 mockMessageSender.Verify(ms => 
                     ms.SendAsync(
-                        It.Is<TestEvent>(c => Object.ReferenceEquals(c, testEvent)), 
+                        It.Is<Envelope<IEvent>>(e => Object.ReferenceEquals(e.Body, testEvent)),
                         It.Is<IDictionary<string, object>>(d => Object.ReferenceEquals(d, testMetadata)),
                         It.Is<CancellationToken>(ct => ct == testCancellationToken)),
                         Times.Once());
             }
         }
 
-        private sealed class TestEvent
+        private sealed class TestEvent : IEvent
         {
-        
+            public TestEvent()
+            {
+                this.SourceId = Guid.NewGuid().ToString("N");
+            }
+
+            public TestEvent(string sourceId)
+            {
+                this.SourceId = sourceId;
+            }
+
+            public string SourceId
+            {
+                get;
+                private set;
+            }
         }
     }
 }

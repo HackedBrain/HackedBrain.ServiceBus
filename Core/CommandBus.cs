@@ -5,39 +5,54 @@ using System.Threading.Tasks;
 
 namespace HackedBrain.ServiceBus.Core
 {
-	public class CommandBus : ICommandBus
-	{
-		#region Fields
+    public class CommandBus : ICommandBus
+    {
+        #region Fields
 
-		private IMessageSender messageSender;
-		private IMessageMetadataProvider messageMetadataProvider;
+        private IMessageSender messageSender;
+        private IMessageMetadataProvider messageMetadataProvider;
 
-		#endregion
+        #endregion
 
-		#region Constructors
+        #region Constructors
 
         public CommandBus(IMessageSender messageSender, IMessageMetadataProvider messageMetadataProvider)
-		{
-			this.messageSender = messageSender;
-			this.messageMetadataProvider = messageMetadataProvider;
-		}
+        {
+            this.messageSender = messageSender;
+            this.messageMetadataProvider = messageMetadataProvider;
+        }
 
-		#endregion
+        #endregion
 
-		#region ICommandBus implementation
+        #region ICommandBus implementation
 
-		public Task SendCommandAsync<TCommand>(TCommand command, CancellationToken cancellationToken) where TCommand : class
-		{
-			if(command == null)
+        public Task SendCommandAsync(Envelope<ICommand> commandEnvelope, CancellationToken cancellationToken)
+        {
+            if(commandEnvelope == null)
             {
-                throw new ArgumentNullException("command");
+                throw new ArgumentNullException("commandEnvelope");
+            }
+
+            IEnumerable<KeyValuePair<string, object>> metadata = this.messageMetadataProvider.GenerateMetadata(commandEnvelope.Body);
+
+            return this.messageSender.SendAsync(commandEnvelope, metadata, cancellationToken);
+        }
+
+        public async Task SendCommandsAsync(IEnumerable<Envelope<ICommand>> commandEnvelopes, CancellationToken cancellationToken)
+        {
+            if(commandEnvelopes == null)
+            {
+                throw new ArgumentNullException("commandEnvelopes");
             }
             
-            IEnumerable<KeyValuePair<string, object>> metadata = this.messageMetadataProvider.GenerateMetadata<TCommand>(command);
+            foreach(Envelope<ICommand> commandEnvelope in commandEnvelopes)
+            {
+                await this.SendCommandAsync(commandEnvelope, cancellationToken);
 
-            return this.messageSender.SendAsync(command, metadata, cancellationToken);
-		}
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+        }
 
-		#endregion
-	}
+        #endregion
+    }
 }

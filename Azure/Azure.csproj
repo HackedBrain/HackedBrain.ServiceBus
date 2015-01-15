@@ -65,11 +65,12 @@
   <ItemGroup>
     <Compile Include="BrokeredMessageBasedMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServiceBusQueueMessageSender.cs" />
+    <Compile Include="ServiceBusTopicMessageSender.cs" />
+    <Compile Include="ServiceBusMessageClientEntityMessageSender.cs" />
     <Compile Include="ServiceBusQueueSessionMessageReceiver.cs" />
     <Compile Include="ServiceBusTopicSessionMessageReceiver.cs" />
     <Compile Include="ServiceBusTopicMessageReceiver.cs" />
-    <Compile Include="ServiceBusTopicMessageSender.cs" />
+    <Compile Include="ServiceBusQueueMessageSender.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj">

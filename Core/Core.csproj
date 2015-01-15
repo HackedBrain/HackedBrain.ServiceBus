@@ -54,8 +54,8 @@
     <Compile Include="EventBus.cs" />
     <Compile Include="CommandBus.cs" />
     <Compile Include="ICommandBus.cs" />
+    <Compile Include="Envelope.cs" />
     <Compile Include="IEventBus.cs" />
-    <Compile Include="IMessageSessionIdProvider.cs" />
     <Compile Include="IMessage.cs" />
     <Compile Include="IMessageMetadataProvider.cs" />
     <Compile Include="IMessageReceiver.cs" />

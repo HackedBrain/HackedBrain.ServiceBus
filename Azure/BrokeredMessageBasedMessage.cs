@@ -34,6 +34,22 @@ namespace HackedBrain.ServiceBus.Azure
             }
         }
 
+        public string SessionId
+        {
+            get
+            {
+                return this.brokeredMessage.SessionId;
+            }
+        }
+
+        public string CorrelationId
+        {
+            get
+            {
+                return this.brokeredMessage.CorrelationId;
+            }
+        }
+
 		public IEnumerable<KeyValuePair<string, object>> Metadata
 		{
 			get
@@ -47,37 +63,21 @@ namespace HackedBrain.ServiceBus.Azure
 			return this.brokeredMessage.GetBody<T>();
 		}
 
-		public void Complete()
-		{
-			this.brokeredMessage.Complete();
-		}
-		
 		public Task CompleteAsync()
 		{
 
 			return this.brokeredMessage.CompleteAsync();
 		}
 
-		public void Abandon()
-		{
-			this.brokeredMessage.Abandon();
-		}
-
-		public Task AbandonAsync()
+        public Task AbandonAsync()
 		{
 			return this.brokeredMessage.AbandonAsync();
-		}
-
-		public void Quarantine(string reason, string description)
-		{
-			this.brokeredMessage.DeadLetter(reason, description);
 		}
 
 		public Task QuarantineAsync(string reason, string description)
 		{
 			return this.brokeredMessage.DeadLetterAsync(reason, description);
 		}
-
 
 		#endregion
 	}

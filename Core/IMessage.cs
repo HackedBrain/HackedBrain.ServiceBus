@@ -11,6 +11,16 @@ namespace HackedBrain.ServiceBus.Core
             get;
         }
 
+        string SessionId
+        {
+            get;
+        }
+
+        string CorrelationId
+        {
+            get;
+        }
+
         IEnumerable<KeyValuePair<string, object>> Metadata
         {
             get;
@@ -18,15 +28,9 @@ namespace HackedBrain.ServiceBus.Core
 
         T GetBody<T>() where T : class;
 
-        void Complete();
-
         Task CompleteAsync();
 
-        void Abandon();
-
         Task AbandonAsync();
-
-        void Quarantine(string reason, string description);
 
         Task QuarantineAsync(string reason, string description);
     }

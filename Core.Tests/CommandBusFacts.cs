@@ -19,7 +19,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
 
                 Func<Task> sendCommandAsync = async () =>
                 {
-                    await commandBus.SendCommandAsync((object)null, CancellationToken.None);
+                    await commandBus.SendCommandAsync(null, CancellationToken.None);
                 };
 
                 sendCommandAsync.ShouldThrow<ArgumentNullException>();
@@ -38,7 +38,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
 
                 mockMessageMetadataProvider.Verify(mmp => 
                     mmp.GenerateMetadata(
-                        It.Is<TestCommand>(c => Object.ReferenceEquals(c, testCommand))),
+                        It.Is<ICommand>(c => Object.ReferenceEquals(c, testCommand))),
                         Times.Once());
             }
 
@@ -62,16 +62,25 @@ namespace HackedBrain.ServiceBus.Core.Tests
 
                 mockMessageSender.Verify(ms => 
                     ms.SendAsync(
-                        It.Is<TestCommand>(c => Object.ReferenceEquals(c, testCommand)), 
+                        It.Is<Envelope<ICommand>>(e => Object.ReferenceEquals(e.Body, testCommand)), 
                         It.Is<IDictionary<string, object>>(d => Object.ReferenceEquals(d, testMetadata)),
                         It.Is<CancellationToken>(ct => ct == testCancellationToken)),
                         Times.Once());
             }
         }
 
-        private sealed class TestCommand
+        private sealed class TestCommand : ICommand
         {
-        
+            public TestCommand()
+            {
+                this.Id = Guid.NewGuid().ToString("N");
+            }
+
+            public string Id
+            {
+                get;
+                private set;
+            }
         }
     }
 }
