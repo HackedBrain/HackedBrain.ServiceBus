@@ -1,23 +1,34 @@
-﻿using System.Collections.Generic;
-
+﻿
+using System.Collections.Generic;
 namespace HackedBrain.ServiceBus.Core
 {
-    public class StandardMessageBuilder : ICommandMessageBuilder, IEventMessageBuilder
+    public abstract class StandardMessageBuilder
     {
-        #region IEventMessageBuilder implementation
+        #region Fields
 
-        IMessage<TEvent> IEventMessageBuilder.BuildMessage<TEvent>(TEvent @event)
+        private IMessageMetadataProvider messageMetadataProvider;
+
+        #endregion
+
+        #region Constructors
+
+        public StandardMessageBuilder(IMessageMetadataProvider messageMetadataProvider)
         {
-            throw new System.NotImplementedException();
+            this.messageMetadataProvider = messageMetadataProvider;
         }
 
         #endregion
 
-        #region ICommandMessageBuilder implementation
+        #region Type specific methods
 
-        IMessage<TCommand> ICommandMessageBuilder.BuildMessage<TCommand>(TCommand command)
+        protected virtual Message<T> BuildMessageInternal<T>(T body)
         {
-            throw new System.NotImplementedException();
+            IEnumerable<KeyValuePair<string, object>> metadata = this.messageMetadataProvider.GenerateMetadata(body);
+            
+            return new Message<T>(body)
+            {
+                Metadata = metadata
+            };
         }
 
         #endregion

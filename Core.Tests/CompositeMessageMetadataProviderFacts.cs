@@ -9,7 +9,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
 {
     public class CompositeMessageMetadataProviderFacts
     {
-        public class ConstructorFacts
+        public class ConstructorFacts : CompositeMessageMetadataProviderFacts
         {
             [Fact]
             public void ConstructingWithANullSetOfProvidersThrows()
@@ -23,7 +23,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
             }
         }
 
-        public class GenerateMetadataFacts
+        public class GenerateMetadataFacts : CompositeMessageMetadataProviderFacts
         {
             [Fact]
             public void GenerateMetadataWithNullMessageThrows()

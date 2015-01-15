@@ -8,7 +8,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
 {
     public class StandardMessageMetadataProviderFacts
     {
-        public class SendCommandAsyncFacts
+        public class SendCommandAsyncFacts : StandardMessageMetadataProviderFacts
         {
             [Fact]
             public void GenerateMetadataForNullMessageThrows()

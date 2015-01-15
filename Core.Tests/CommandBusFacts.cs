@@ -9,7 +9,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
 {
     public class CommandBusFacts
     {
-        public class SendCommandAsyncFacts
+        public class SendCommandAsyncFacts : CommandBusFacts
         {
             [Fact]
             public void SendingNullCommandThrows()
@@ -59,20 +59,6 @@ namespace HackedBrain.ServiceBus.Core.Tests
                         It.Is<IMessage<TestCommand>>(m => Object.ReferenceEquals(m, mockMessage.Object)), 
                         It.Is<CancellationToken>(ct => ct == testCancellationToken)),
                         Times.Once());
-            }
-        }
-
-        public sealed class TestCommand : ICommand
-        {
-            public TestCommand()
-            {
-                this.Id = Guid.NewGuid().ToString("N");
-            }
-
-            public string Id
-            {
-                get;
-                private set;
             }
         }
     }

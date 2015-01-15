@@ -67,10 +67,14 @@
   </Choose>
   <ItemGroup>
     <Compile Include="CompositeMessageMetadataProviderFacts.cs" />
+    <Compile Include="StandardCommandMessageBuilderFacts.cs" />
+    <Compile Include="StandardEventMessageBuilderFacts.cs" />
     <Compile Include="StandardMessageMetadataProviderFacts.cs" />
     <Compile Include="EventBusFacts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CommandBusFacts.cs" />
+    <Compile Include="TestCommand.cs" />
+    <Compile Include="TestEvent.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

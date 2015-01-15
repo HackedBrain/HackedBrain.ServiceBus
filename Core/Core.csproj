@@ -56,8 +56,9 @@
     <Compile Include="EventBus.cs" />
     <Compile Include="CommandBus.cs" />
     <Compile Include="ICommandBus.cs" />
-    <Compile Include="Envelope.cs" />
     <Compile Include="Message.cs" />
+    <Compile Include="StandardEventMessageBuilder.cs" />
+    <Compile Include="StandardCommandMessageBuilder.cs" />
     <Compile Include="StandardMessageBuilder.cs" />
     <Compile Include="IEventMessageBuilder.cs" />
     <Compile Include="IEventBus.cs" />
