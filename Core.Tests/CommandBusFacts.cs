@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -15,7 +14,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
             [Fact]
             public void SendingNullCommandThrows()
             {
-                CommandBus commandBus = new CommandBus(new Mock<ICommandMessageBuilder>().Object, new Mock<IMessageSender>().Object, new Mock<IMessageMetadataProvider>().Object);
+                CommandBus commandBus = new CommandBus(new Mock<ICommandMessageBuilder>().Object, new Mock<IMessageSender>().Object);
 
                 Func<Task> sendCommandAsync = async () =>
                 {
@@ -26,20 +25,15 @@ namespace HackedBrain.ServiceBus.Core.Tests
             }
 
             [Fact]
-            public async Task SendingCommandGeneratesMetadata()
+            public async Task SendingCommandBuildsMessage()
             {
-                Mock<IMessageMetadataProvider> mockMessageMetadataProvider = new Mock<IMessageMetadataProvider>();
+                Mock<ICommandMessageBuilder> mockMessageBuilder = new Mock<ICommandMessageBuilder>();
 
-                CommandBus commandBus = new CommandBus(new Mock<ICommandMessageBuilder>().Object, new Mock<IMessageSender>().Object, mockMessageMetadataProvider.Object);
+                CommandBus commandBus = new CommandBus(mockMessageBuilder.Object, new Mock<IMessageSender>().Object);
 
                 TestCommand testCommand = new TestCommand();
                 
                 await commandBus.SendCommandAsync(testCommand, CancellationToken.None);
-
-                mockMessageMetadataProvider.Verify(mmp => 
-                    mmp.GenerateMetadata(
-                        It.Is<ICommand>(c => Object.ReferenceEquals(c, testCommand))),
-                        Times.Once());
             }
 
             [Fact]
@@ -53,13 +47,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
                 
                 Mock<IMessageSender> mockMessageSender = new Mock<IMessageSender>();
 
-                Dictionary<string, object> testMetadata = new Dictionary<string,object>();
-
-                Mock<IMessageMetadataProvider> mockMessageMetadataProvider = new Mock<IMessageMetadataProvider>();
-                mockMessageMetadataProvider.Setup(mmp => mmp.GenerateMetadata<TestCommand>(It.IsAny<TestCommand>()))
-                    .Returns(testMetadata);
-
-                CommandBus commandBus = new CommandBus(mockMessageBuilder.Object, mockMessageSender.Object, mockMessageMetadataProvider.Object);
+                CommandBus commandBus = new CommandBus(mockMessageBuilder.Object, mockMessageSender.Object);
 
                 TestCommand testCommand = new TestCommand();
                 CancellationToken testCancellationToken = new CancellationToken();
@@ -68,13 +56,13 @@ namespace HackedBrain.ServiceBus.Core.Tests
 
                 mockMessageSender.Verify(ms => 
                     ms.SendAsync(
-                        It.Is<IMessage<TestCommand>>(e => Object.ReferenceEquals(e.Body, testCommand)), 
+                        It.Is<IMessage<TestCommand>>(m => Object.ReferenceEquals(m, mockMessage.Object)), 
                         It.Is<CancellationToken>(ct => ct == testCancellationToken)),
                         Times.Once());
             }
         }
 
-        private sealed class TestCommand : ICommand
+        public sealed class TestCommand : ICommand
         {
             public TestCommand()
             {

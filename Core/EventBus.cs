@@ -10,18 +10,16 @@ namespace HackedBrain.ServiceBus.Core
         #region Fields
 
         private IMessageSender messageSender;
-        private IMessageMetadataProvider messageMetadataProvider;
         private IEventMessageBuilder messageBuilder;
 
         #endregion
 
         #region Constructors
 
-        public EventBus(IEventMessageBuilder messageBuilder, IMessageSender messageSender, IMessageMetadataProvider messageMetadataProvider)
+        public EventBus(IEventMessageBuilder messageBuilder, IMessageSender messageSender)
         {
             this.messageBuilder = messageBuilder;
             this.messageSender = messageSender;
-            this.messageMetadataProvider = messageMetadataProvider;
         }
 
         #endregion
