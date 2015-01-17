@@ -8,7 +8,6 @@ namespace HackedBrain.ServiceBus.Core
         #region Fields
 
         internal static readonly string MessageTypeKey = "StandardMessageMetadataProvider.MessageType";
-        internal static readonly string CreatedOnKey = "StandardMessageMetadataProvider.CreatedOn";
         internal static readonly string ProviderVersionKey = "StandardMessageMetadataProvider.ProviderVersion";
 
         internal static readonly string ProviderVersionValue = typeof(StandardMessageMetadataProvider).Assembly.GetName().Version.ToString();
@@ -28,7 +27,6 @@ namespace HackedBrain.ServiceBus.Core
             {
                 new KeyValuePair<string, object>(StandardMessageMetadataProvider.ProviderVersionKey, StandardMessageMetadataProvider.ProviderVersionValue),
                 new KeyValuePair<string, object>(StandardMessageMetadataProvider.MessageTypeKey, typeof(TMessage).Name),
-                new KeyValuePair<string, object>(StandardMessageMetadataProvider.CreatedOnKey, DateTime.UtcNow),
             };
         }
 

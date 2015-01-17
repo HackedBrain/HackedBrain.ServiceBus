@@ -53,9 +53,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandProcessor.cs" />
     <Compile Include="EventBus.cs" />
     <Compile Include="CommandBus.cs" />
     <Compile Include="ICommandBus.cs" />
+    <Compile Include="CommandDispatcher.cs" />
+    <Compile Include="ICommandDispatcher.cs" />
+    <Compile Include="ICommandHandler.cs" />
+    <Compile Include="ICommandHandlerFactory.cs" />
+    <Compile Include="IProcessor.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="StandardEventMessageBuilder.cs" />
     <Compile Include="StandardCommandMessageBuilder.cs" />

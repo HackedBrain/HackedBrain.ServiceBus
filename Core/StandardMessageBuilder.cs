@@ -24,6 +24,8 @@ namespace HackedBrain.ServiceBus.Core
         protected virtual Message<T> BuildMessageInternal<T>(T body)
         {
             IEnumerable<KeyValuePair<string, object>> metadata = this.messageMetadataProvider.GenerateMetadata(body);
+
+            // TODO: need to transfer things like message id, session id, 
             
             return new Message<T>(body)
             {
