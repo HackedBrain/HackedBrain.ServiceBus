@@ -5,6 +5,11 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using Xunit;
+using System.Reactive.Linq;
+using System.Reactive.Concurrency;
+using System.Diagnostics;
+using System.Reactive.Subjects;
+using System.Collections.Generic;
 
 namespace HackedBrain.ServiceBus.Core.Tests
 {
@@ -34,7 +39,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
             [Fact]
             public void StartShouldBeginListeningToMessageReceiver()
             {
-                
+
             }
         }
 
@@ -51,22 +56,126 @@ namespace HackedBrain.ServiceBus.Core.Tests
             }
 
             [Fact]
-            public void ShouldDisposeOfMessageReceiversSubscription()
+            public async Task ShouldProcessMessagesFromReceiver()
             {
-                Enumerable.Range(1, 5).Select(i => new TestCommand
-                {
-                    Id = i.ToString()
-                });
+                Subject<IMessage<ICommand>> testCommandMessagesSubject = new Subject<IMessage<ICommand>>();
 
                 Mock<IMessageReceiver> mockMessageReceiver = new Mock<IMessageReceiver>();
-                mockMessageReceiver.Setup(mr => mr.WhenMessageReceived<ICommand>())
-                    .Returns(mockSubscriptionDisposable.Object);
+                mockMessageReceiver.Setup(mr => mr.WhenMessageReceived<ICommand>(default(TimeSpan)))
+                    .Returns(testCommandMessagesSubject);
+
+                TestCommand testCommand = new TestCommand();
                 
-                CommandProcessor commandProcessor = new CommandProcessor(mockMessageReceiver.Object, new Mock<ICommandDispatcher>().Object);
+                Mock<IMessage<ICommand>> mockCommandMessage = new Mock<IMessage<ICommand>>();
+                mockCommandMessage.SetupGet(m => m.Body)
+                    .Returns(testCommand);
 
-                commandProcessor.Stop();
+                using(CommandProcessor commandProcessor = new CommandProcessor(mockMessageReceiver.Object, new Mock<ICommandDispatcher>().Object))
+                {
+                    IConnectableObservable<ICommand> processedCommands = commandProcessor.WhenCommandProcessed().ObserveOn(TaskPoolScheduler.Default).Replay();
 
-                mockSubscriptionDisposable.Verify(d => d.Dispose(), Times.Once());
+                    using(processedCommands.Connect())
+                    {
+                        commandProcessor.Start();
+
+                        testCommandMessagesSubject.HasObservers.Should().BeTrue();
+
+                        testCommandMessagesSubject.OnNext(mockCommandMessage.Object);
+
+                        ICommand command = await processedCommands.FirstOrDefaultAsync();
+
+                        command.Should().BeSameAs(testCommand);
+                    }
+                }
+
+                mockMessageReceiver.Verify(mr => mr.WhenMessageReceived<ICommand>(It.IsAny<TimeSpan>()), Times.Once());
+            }
+
+            [Fact]
+            public async Task ShouldStopReceivingMessagesWhenStopped()
+            {
+                Subject<IMessage<ICommand>> testCommandMessagesSubject = new Subject<IMessage<ICommand>>();
+
+                Mock<IMessageReceiver> mockMessageReceiver = new Mock<IMessageReceiver>();
+                mockMessageReceiver.Setup(mr => mr.WhenMessageReceived<ICommand>(default(TimeSpan)))
+                    .Returns(testCommandMessagesSubject);
+
+                TestCommand testCommand = new TestCommand();
+                
+                Mock<IMessage<ICommand>> mockCommandMessage = new Mock<IMessage<ICommand>>();
+                mockCommandMessage.SetupGet(m => m.Body)
+                    .Returns(testCommand);
+
+                using(CommandProcessor commandProcessor = new CommandProcessor(mockMessageReceiver.Object, new Mock<ICommandDispatcher>().Object))
+                {
+                    IConnectableObservable<ICommand> processedCommands = commandProcessor.WhenCommandProcessed().ObserveOn(TaskPoolScheduler.Default).Publish();
+
+                    using(processedCommands.Connect())
+                    {
+                        commandProcessor.Start();
+
+                        testCommandMessagesSubject.HasObservers.Should().BeTrue();
+
+                        testCommandMessagesSubject.OnNext(mockCommandMessage.Object);
+
+                        commandProcessor.Stop();
+
+                        testCommandMessagesSubject.HasObservers.Should().BeFalse();
+
+                        testCommandMessagesSubject.OnNext(mockCommandMessage.Object);
+
+                        ICommand command = await processedCommands.LastOrDefaultAsync();
+
+                        command.Should().BeNull();
+                    }
+                }
+            }
+
+            [Fact]
+            public async Task ShouldDeliverCommandsToDispatcher()
+            {
+                Subject<IMessage<ICommand>> testCommandMessagesSubject = new Subject<IMessage<ICommand>>();
+
+                Mock<IMessageReceiver> mockMessageReceiver = new Mock<IMessageReceiver>();
+                mockMessageReceiver.Setup(mr => mr.WhenMessageReceived<ICommand>(default(TimeSpan)))
+                    .Returns(testCommandMessagesSubject);
+
+                Mock<ICommandDispatcher> mockCommandDispatcher = new Mock<ICommandDispatcher>();
+
+                List<IMessage<ICommand>> testCommandMessages = Enumerable.Range(1, 3).Select(i => 
+                {
+                    string id = i.ToString();
+                    
+                    Mock<IMessage<ICommand>> mockCommandMessage = new Mock<IMessage<ICommand>>();
+                    mockCommandMessage.SetupGet(m => m.Id)
+                        .Returns("Message:" + id);
+
+                    mockCommandMessage.SetupGet(m => m.Body)
+                        .Returns(new TestCommand
+                        {
+                            Id = "Command:" + id
+                        });
+
+                    return mockCommandMessage.Object;
+                }).ToList();
+                
+                using(CommandProcessor commandProcessor = new CommandProcessor(mockMessageReceiver.Object, mockCommandDispatcher.Object))
+                {
+                    commandProcessor.Start();
+
+                    foreach(IMessage<ICommand> commandMessage in testCommandMessages)
+                    {
+                        testCommandMessagesSubject.OnNext(commandMessage);
+                    }
+                }
+
+                mockCommandDispatcher.Verify(
+                    cd => cd.DispatchAsync(
+                        It.IsAny<ICommand>(), 
+                        It.IsAny<CancellationToken>()),
+                    Times.Exactly(testCommandMessages.Count));
+
+                throw new NotImplementedException("Should really verify the commands are delivered in order!");
             }
         }
     }

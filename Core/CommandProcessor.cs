@@ -2,16 +2,18 @@
 using System.Diagnostics;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 
 namespace HackedBrain.ServiceBus.Core
 {
-    public class CommandProcessor : IProcessor
+    public class CommandProcessor : IProcessor, IDisposable
     {
         #region Fields
 
         private ICommandDispatcher commandDispatcher;
         private IMessageReceiver messageReceiver;
         private IDisposable messageDisatchingSubscription;
+        private Subject<ICommand> commandProcessedSubject;
 
         #endregion
 
@@ -32,11 +34,21 @@ namespace HackedBrain.ServiceBus.Core
             }
             
             this.commandDispatcher = commandDispatcher;
+            this.commandProcessedSubject = new Subject<ICommand>();
         }
 
         #endregion
 
         #region Type specific methods
+
+        public IObservable<ICommand> WhenCommandProcessed()
+        {
+            return this.commandProcessedSubject;
+        }
+
+        #endregion
+
+        #region IProcessor implementation
 
         public void Start()
         {
@@ -51,7 +63,14 @@ namespace HackedBrain.ServiceBus.Core
 #if DEBUG                
                 .Do(message => Debug.WriteLine("Processing command: type={0};id={1};", message.Body.GetType().Name, message.Body.Id))
 #endif
-                .Subscribe(async message => await this.commandDispatcher.DispatchAsync(message.Body, commandDispatchingDisposable.Token));
+                .Subscribe(async message => 
+                    {
+                        ICommand command = message.Body;
+                        
+                        await this.commandDispatcher.DispatchAsync(command, commandDispatchingDisposable.Token);
+
+                        this.commandProcessedSubject.OnNext(command);
+                    });
 
             this.messageDisatchingSubscription = new CompositeDisposable(commandProcessingDisposable, commandDispatchingDisposable);
         }
@@ -65,6 +84,22 @@ namespace HackedBrain.ServiceBus.Core
 
             this.messageDisatchingSubscription.Dispose();
             this.messageDisatchingSubscription = null;
+
+            this.commandProcessedSubject.OnCompleted();
+            this.commandProcessedSubject.Dispose();
+            this.commandProcessedSubject = new Subject<ICommand>();
+        }
+
+        #endregion
+
+        #region IDisposable implementation
+
+        public void Dispose()
+        {
+            if(this.messageDisatchingSubscription != null)
+            {
+                this.Stop();
+            }
         }
 
         #endregion
