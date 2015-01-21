@@ -17,7 +17,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
         public string SourceId
         {
             get;
-            private set;
+            set;
         }
     }
 }

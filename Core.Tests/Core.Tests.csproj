@@ -78,7 +78,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="CommandProcessorFacts.cs" />
+    <Compile Include="MessageProcessorFacts.cs" />
     <Compile Include="CompositeMessageMetadataProviderFacts.cs" />
     <Compile Include="StandardCommandMessageBuilderFacts.cs" />
     <Compile Include="StandardEventMessageBuilderFacts.cs" />

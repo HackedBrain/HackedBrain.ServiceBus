@@ -6,20 +6,20 @@ using System.Reactive.Subjects;
 
 namespace HackedBrain.ServiceBus.Core
 {
-    public class CommandProcessor : IProcessor, IDisposable
+    public class MessageProcessor<T> : IProcessor, IDisposable
     {
         #region Fields
 
-        private ICommandDispatcher commandDispatcher;
+        private IDispatcher<T> dispatcher;
         private IMessageReceiver messageReceiver;
         private IDisposable messageDisatchingSubscription;
-        private Subject<ICommand> commandProcessedSubject;
+        private Subject<IMessage<T>> messageProcessedSubject;
 
         #endregion
 
         #region Constructors
 
-        public CommandProcessor(IMessageReceiver messageReceiver, ICommandDispatcher commandDispatcher)
+        public MessageProcessor(IMessageReceiver messageReceiver, IDispatcher<T> dispatcher)
         {
             if(messageReceiver == null)
             {
@@ -28,22 +28,22 @@ namespace HackedBrain.ServiceBus.Core
 
             this.messageReceiver = messageReceiver;
             
-            if(commandDispatcher == null)
+            if(dispatcher == null)
             {
-                throw new ArgumentNullException("commandDispatcher");
+                throw new ArgumentNullException("dispatcher");
             }
             
-            this.commandDispatcher = commandDispatcher;
-            this.commandProcessedSubject = new Subject<ICommand>();
+            this.dispatcher = dispatcher;
+            this.messageProcessedSubject = new Subject<IMessage<T>>();
         }
 
         #endregion
 
         #region Type specific methods
 
-        public IObservable<ICommand> WhenCommandProcessed()
+        public IObservable<IMessage<T>> WhenMessageProcessed()
         {
-            return this.commandProcessedSubject;
+            return this.messageProcessedSubject;
         }
 
         #endregion
@@ -57,22 +57,22 @@ namespace HackedBrain.ServiceBus.Core
                 throw new InvalidOperationException("The processor is already started.");
             }
 
-            CancellationDisposable commandDispatchingDisposable = new CancellationDisposable();
+            CancellationDisposable messageDispatchingDisposable = new CancellationDisposable();
 
-            IDisposable commandProcessingDisposable = this.messageReceiver.WhenMessageReceived<ICommand>()
+            IDisposable messageProcessingDisposable = this.messageReceiver.WhenMessageReceived<T>()
 #if DEBUG                
-                .Do(message => Debug.WriteLine("Processing command: type={0};id={1};", message.Body.GetType().Name, message.Body.Id))
+                .Do(message => Debug.WriteLine("Processing event: MessageType={0}", message.Body.GetType().Name))
 #endif
                 .Subscribe(async message => 
                     {
-                        ICommand command = message.Body;
+                        T messageBody = message.Body;
                         
-                        await this.commandDispatcher.DispatchAsync(command, commandDispatchingDisposable.Token);
+                        await this.dispatcher.DispatchAsync(messageBody, messageDispatchingDisposable.Token);
 
-                        this.commandProcessedSubject.OnNext(command);
+                        this.messageProcessedSubject.OnNext(message);
                     });
 
-            this.messageDisatchingSubscription = new CompositeDisposable(commandProcessingDisposable, commandDispatchingDisposable);
+            this.messageDisatchingSubscription = new CompositeDisposable(messageProcessingDisposable, messageDispatchingDisposable);
         }
 
         public void Stop()
@@ -85,9 +85,9 @@ namespace HackedBrain.ServiceBus.Core
             this.messageDisatchingSubscription.Dispose();
             this.messageDisatchingSubscription = null;
 
-            this.commandProcessedSubject.OnCompleted();
-            this.commandProcessedSubject.Dispose();
-            this.commandProcessedSubject = new Subject<ICommand>();
+            this.messageProcessedSubject.OnCompleted();
+            this.messageProcessedSubject.Dispose();
+            this.messageProcessedSubject = new Subject<IMessage<T>>();
         }
 
         #endregion
