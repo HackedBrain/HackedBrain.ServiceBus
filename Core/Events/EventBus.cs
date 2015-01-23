@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using HackedBrain.ServiceBus.Core.Messaging;
 
 namespace HackedBrain.ServiceBus.Core
 {
@@ -10,13 +11,13 @@ namespace HackedBrain.ServiceBus.Core
         #region Fields
 
         private IMessageSender messageSender;
-        private IEventMessageBuilder messageBuilder;
+        private IMessageBuilder messageBuilder;
 
         #endregion
 
         #region Constructors
 
-        public EventBus(IEventMessageBuilder messageBuilder, IMessageSender messageSender)
+        public EventBus(IMessageBuilder messageBuilder, IMessageSender messageSender)
         {
             this.messageBuilder = messageBuilder;
             this.messageSender = messageSender;

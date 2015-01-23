@@ -6,18 +6,18 @@ using Xunit;
 
 namespace HackedBrain.ServiceBus.Core.Tests
 {
-    public class StandardCommandMessageBuilderFacts
+    public class StandardMessageBuilderFacts
     {
-        public class BuildMessageFacts : StandardCommandMessageBuilderFacts
+        public class BuildMessageFacts : StandardMessageBuilderFacts
         {
             [Fact]
             public void BuildMessageForNullThrows()
             {
-                StandardCommandMessageBuilder commandMessageBuilder = new StandardCommandMessageBuilder(new Mock<IMessageMetadataProvider>().Object);
+                StandardMessageBuilder messageBuilder = new StandardMessageBuilder(t => null, t => null, t => null, t => null);
                 
                 Action buildMessage = () =>
                 {
-                    commandMessageBuilder.BuildMessage((ICommand)null);
+                    messageBuilder.BuildMessage((TestEvent)null);
                 };
 
                 buildMessage.ShouldThrow<ArgumentNullException>();
@@ -26,15 +26,15 @@ namespace HackedBrain.ServiceBus.Core.Tests
             [Fact]
             public void BuildMessageReturnsMessageWithExpectedBody()
             {
-                StandardCommandMessageBuilder commandMessageBuilder = new StandardCommandMessageBuilder(new Mock<IMessageMetadataProvider>().Object);
+                StandardMessageBuilder messageBuilder = new StandardMessageBuilder(t => null, t => null, t => null, t => null);
 
-                TestCommand testCommand = new TestCommand();
+                TestEvent testEvent = new TestEvent();
 
-                IMessage<TestCommand> message = commandMessageBuilder.BuildMessage(testCommand);
+                IMessage<TestEvent> message = messageBuilder.BuildMessage(testEvent);
 
                 message.Should().NotBeNull();
 
-                message.Body.Should().BeSameAs(testCommand);
+                message.Body.Should().BeSameAs(testEvent);
             }
 
             [Fact]
@@ -47,17 +47,17 @@ namespace HackedBrain.ServiceBus.Core.Tests
                 };
                 
                 Mock<IMessageMetadataProvider> messageMetadataProvider = new Mock<IMessageMetadataProvider>();
-                messageMetadataProvider.Setup(mp => mp.GenerateMetadata(It.IsAny<TestCommand>()))
+                messageMetadataProvider.Setup(mp => mp.GenerateMetadata(It.IsAny<TestEvent>()))
                     .Returns(testMetadata);
-                
-                StandardCommandMessageBuilder commandMessageBuilder = new StandardCommandMessageBuilder(messageMetadataProvider.Object);
 
-                TestCommand testCommand = new TestCommand();
+                StandardMessageBuilder messageBuilder = new StandardMessageBuilder(t => messageMetadataProvider.Object, t => null, t => null, t => null);
+
+                TestEvent testEvent = new TestEvent();
                 
-                IMessage<TestCommand> message = commandMessageBuilder.BuildMessage(testCommand);
+                IMessage<TestEvent> message = messageBuilder.BuildMessage(testEvent);
 
                 messageMetadataProvider.Verify(mp => mp.GenerateMetadata(
-                    It.Is<TestCommand>(it => Object.ReferenceEquals(it, testCommand))),
+                    It.Is<TestEvent>(it => Object.ReferenceEquals(it, testEvent))),
                     Times.Once());
 
                 message.Metadata.Should().BeSameAs(testMetadata);

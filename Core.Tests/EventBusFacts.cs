@@ -14,7 +14,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
             [Fact]
             public void PublishingNullEventThrows()
             {
-                EventBus eventBus = new EventBus(new Mock<IEventMessageBuilder>().Object, new Mock<IMessageSender>().Object);
+                EventBus eventBus = new EventBus(new Mock<IMessageBuilder>().Object, new Mock<IMessageSender>().Object);
 
                 Func<Task> publishEventAsync = async () =>
                 {
@@ -27,7 +27,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
             [Fact]
             public async Task PublishingEventBuildsMessage()
             {
-                Mock<IEventMessageBuilder> mockMessageBuilder = new Mock<IEventMessageBuilder>();
+                Mock<IMessageBuilder> mockMessageBuilder = new Mock<IMessageBuilder>();
 
                 EventBus eventBus = new EventBus(mockMessageBuilder.Object, new Mock<IMessageSender>().Object);
 
@@ -45,7 +45,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
             {
                 Mock<IMessage<TestEvent>> mockMessage = new Mock<IMessage<TestEvent>>();
 
-                Mock<IEventMessageBuilder> mockMessageBuilder = new Mock<IEventMessageBuilder>();
+                Mock<IMessageBuilder> mockMessageBuilder = new Mock<IMessageBuilder>();
                 mockMessageBuilder.Setup(mb => mb.BuildMessage<TestEvent>(It.IsAny<TestEvent>()))
                     .Returns(mockMessage.Object);
                 

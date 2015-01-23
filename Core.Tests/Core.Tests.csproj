@@ -80,8 +80,7 @@
   <ItemGroup>
     <Compile Include="MessageProcessorFacts.cs" />
     <Compile Include="CompositeMessageMetadataProviderFacts.cs" />
-    <Compile Include="StandardCommandMessageBuilderFacts.cs" />
-    <Compile Include="StandardEventMessageBuilderFacts.cs" />
+    <Compile Include="StandardMessageBuilderFacts.cs" />
     <Compile Include="StandardMessageMetadataProviderFacts.cs" />
     <Compile Include="EventBusFacts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -14,7 +14,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
             [Fact]
             public void SendingNullCommandThrows()
             {
-                CommandBus commandBus = new CommandBus(new Mock<ICommandMessageBuilder>().Object, new Mock<IMessageSender>().Object);
+                CommandBus commandBus = new CommandBus(new Mock<IMessageBuilder>().Object, new Mock<IMessageSender>().Object);
 
                 Func<Task> sendCommandAsync = async () =>
                 {
@@ -27,7 +27,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
             [Fact]
             public async Task SendingCommandBuildsMessage()
             {
-                Mock<ICommandMessageBuilder> mockMessageBuilder = new Mock<ICommandMessageBuilder>();
+                Mock<IMessageBuilder> mockMessageBuilder = new Mock<IMessageBuilder>();
 
                 CommandBus commandBus = new CommandBus(mockMessageBuilder.Object, new Mock<IMessageSender>().Object);
 
@@ -41,7 +41,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
             {
                 Mock<IMessage<TestCommand>> mockMessage = new Mock<IMessage<TestCommand>>(); 
                 
-                Mock<ICommandMessageBuilder> mockMessageBuilder = new Mock<ICommandMessageBuilder>();
+                Mock<IMessageBuilder> mockMessageBuilder = new Mock<IMessageBuilder>();
                 mockMessageBuilder.Setup(mb => mb.BuildMessage<TestCommand>(It.IsAny<TestCommand>()))
                     .Returns(mockMessage.Object);
                 

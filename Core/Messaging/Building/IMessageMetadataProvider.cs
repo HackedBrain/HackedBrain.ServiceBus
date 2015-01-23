@@ -4,6 +4,6 @@ namespace HackedBrain.ServiceBus.Core
 {
 	public interface IMessageMetadataProvider
 	{
-		IEnumerable<KeyValuePair<string, object>> GenerateMetadata<TMessageType>(TMessageType message);
+		IEnumerable<KeyValuePair<string, object>> GenerateMetadata<TBody>(TBody body);
 	}
 }
