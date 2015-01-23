@@ -11,26 +11,28 @@ namespace HackedBrain.ServiceBus.Azure
 		#region Fields
 
 		private QueueClient queueClient;
+        private IMessageBodySerializer messageBodySerializer;
 
 		#endregion
 
 		#region Constructors
 
-		public ServiceBusQueueSessionMessageReceiver(QueueClient queueClient)
+		public ServiceBusQueueSessionMessageReceiver(QueueClient queueClient, IMessageBodySerializer messageBodySerializer)
 		{
 			this.queueClient = queueClient;
+            this.messageBodySerializer = messageBodySerializer;
 		}
 
 		#endregion
 
 		#region IMessageReceiver implementation
 
-		public IObservable<IMessage> WhenMessageReceived(TimeSpan waitTimeout = default(TimeSpan))
+		public IObservable<IMessage<TMessageBody>> WhenMessageReceived<TMessageBody>(TimeSpan waitTimeout = default(TimeSpan))
 		{
 			return this.queueClient
 				.WhenSessionAccepted()
 				.SelectMany(session => session.WhenMessageReceived()
-										.Select(brokeredMessage => new BrokeredMessageBasedMessage(brokeredMessage)));
+										.Select(brokeredMessage => brokeredMessage.ToMessage<TMessageBody>(this.messageBodySerializer)));
 		}
 
 		#endregion

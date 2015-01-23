@@ -17,11 +17,11 @@ namespace HackedBrain.ServiceBus.Serializers
             binaryFormatter.Serialize(destinationStream, body);
         }
 
-        public object DeserializeBody(Stream sourceStream)
+        public TBody DeserializeBody<TBody>(Stream sourceStream)
         {
             BinaryFormatter binaryFormatter = BinaryFormatterMessageBodySerializer.BuildBinaryFormatter();
 
-            return binaryFormatter.Deserialize(sourceStream);
+            return (TBody)binaryFormatter.Deserialize(sourceStream);
         }
 
         #endregion

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
+﻿using System.IO;
 
 namespace HackedBrain.ServiceBus.Core
 {
@@ -9,6 +6,6 @@ namespace HackedBrain.ServiceBus.Core
     {
         void SerializeBody<TBody>(TBody body, Stream destinationStream);
 
-        object DeserializeBody(Stream sourceStream);
+        TBody DeserializeBody<TBody>(Stream sourceStream);
     }
 }

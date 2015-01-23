@@ -8,7 +8,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
 {
     public class StandardMessageMetadataProviderFacts
     {
-        public class SendCommandAsyncFacts
+        public class SendCommandAsyncFacts : StandardMessageMetadataProviderFacts
         {
             [Fact]
             public void GenerateMetadataForNullMessageThrows()
@@ -37,9 +37,6 @@ namespace HackedBrain.ServiceBus.Core.Tests
 
                 metadataEntry = metadata.FirstOrDefault(kvp => kvp.Key == StandardMessageMetadataProvider.MessageTypeKey);
                 metadataEntry.Value.As<string>().Should().NotBeNullOrWhiteSpace();
-
-                metadataEntry = metadata.FirstOrDefault(kvp => kvp.Key == StandardMessageMetadataProvider.CreatedOnKey);
-                metadataEntry.Value.As<DateTime>().Should().BeCloseTo(DateTime.UtcNow);
             }
         }
     }

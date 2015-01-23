@@ -48,12 +48,12 @@ namespace HackedBrain.ServiceBus.Serializers
             }
         }
 
-        public object DeserializeBody(Stream sourceStream)
+        public TBody DeserializeBody<TBody>(Stream sourceStream)
         {
             using(StreamReader streamReader = new StreamReader(sourceStream))
             using(JsonTextReader jsonReader = new JsonTextReader(streamReader))
             {
-                return this.jsonSerializer.Deserialize(jsonReader);
+                return this.jsonSerializer.Deserialize<TBody>(jsonReader);
             }
         }
 

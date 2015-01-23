@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -10,50 +9,45 @@ namespace HackedBrain.ServiceBus.Core.Tests
 {
     public class CommandBusFacts
     {
-        public class SendCommandAsyncFacts
+        public class SendCommandAsyncFacts : CommandBusFacts
         {
             [Fact]
             public void SendingNullCommandThrows()
             {
-                CommandBus commandBus = new CommandBus(new Mock<IMessageSender>().Object, new Mock<IMessageMetadataProvider>().Object);
+                CommandBus commandBus = new CommandBus(new Mock<ICommandMessageBuilder>().Object, new Mock<IMessageSender>().Object);
 
                 Func<Task> sendCommandAsync = async () =>
                 {
-                    await commandBus.SendCommandAsync((object)null, CancellationToken.None);
+                    await commandBus.SendCommandAsync((ICommand)null, CancellationToken.None);
                 };
 
                 sendCommandAsync.ShouldThrow<ArgumentNullException>();
             }
 
             [Fact]
-            public async Task SendingCommandGeneratesMetadata()
+            public async Task SendingCommandBuildsMessage()
             {
-                Mock<IMessageMetadataProvider> mockMessageMetadataProvider = new Mock<IMessageMetadataProvider>();
+                Mock<ICommandMessageBuilder> mockMessageBuilder = new Mock<ICommandMessageBuilder>();
 
-                CommandBus commandBus = new CommandBus(new Mock<IMessageSender>().Object, mockMessageMetadataProvider.Object);
+                CommandBus commandBus = new CommandBus(mockMessageBuilder.Object, new Mock<IMessageSender>().Object);
 
                 TestCommand testCommand = new TestCommand();
                 
                 await commandBus.SendCommandAsync(testCommand, CancellationToken.None);
-
-                mockMessageMetadataProvider.Verify(mmp => 
-                    mmp.GenerateMetadata(
-                        It.Is<TestCommand>(c => Object.ReferenceEquals(c, testCommand))),
-                        Times.Once());
             }
 
             [Fact]
             public async Task SendingCommandSendsViaMessageSender()
             {
+                Mock<IMessage<TestCommand>> mockMessage = new Mock<IMessage<TestCommand>>(); 
+                
+                Mock<ICommandMessageBuilder> mockMessageBuilder = new Mock<ICommandMessageBuilder>();
+                mockMessageBuilder.Setup(mb => mb.BuildMessage<TestCommand>(It.IsAny<TestCommand>()))
+                    .Returns(mockMessage.Object);
+                
                 Mock<IMessageSender> mockMessageSender = new Mock<IMessageSender>();
 
-                Dictionary<string, object> testMetadata = new Dictionary<string,object>();
-
-                Mock<IMessageMetadataProvider> mockMessageMetadataProvider = new Mock<IMessageMetadataProvider>();
-                mockMessageMetadataProvider.Setup(mmp => mmp.GenerateMetadata<TestCommand>(It.IsAny<TestCommand>()))
-                    .Returns(testMetadata);
-
-                CommandBus commandBus = new CommandBus(mockMessageSender.Object, mockMessageMetadataProvider.Object);
+                CommandBus commandBus = new CommandBus(mockMessageBuilder.Object, mockMessageSender.Object);
 
                 TestCommand testCommand = new TestCommand();
                 CancellationToken testCancellationToken = new CancellationToken();
@@ -62,16 +56,10 @@ namespace HackedBrain.ServiceBus.Core.Tests
 
                 mockMessageSender.Verify(ms => 
                     ms.SendAsync(
-                        It.Is<TestCommand>(c => Object.ReferenceEquals(c, testCommand)), 
-                        It.Is<IDictionary<string, object>>(d => Object.ReferenceEquals(d, testMetadata)),
+                        It.Is<IMessage<TestCommand>>(m => Object.ReferenceEquals(m, mockMessage.Object)), 
                         It.Is<CancellationToken>(ct => ct == testCancellationToken)),
                         Times.Once());
             }
-        }
-
-        private sealed class TestCommand
-        {
-        
         }
     }
 }
