@@ -7,7 +7,7 @@ namespace HackedBrain.ServiceBus.Core
 {
     public class CommandDispatcher : Dispatcher<ICommand>
     {
-        public CommandDispatcher(IHandlerFactory commandHandlerFactory) : base(commandHandlerFactory)
+        public CommandDispatcher(Func<Type, IHandler> commandHandlerFactory) : base(commandHandlerFactory)
         {
         }
     }

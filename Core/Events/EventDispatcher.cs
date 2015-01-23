@@ -7,7 +7,7 @@ namespace HackedBrain.ServiceBus.Core
 {
     public class EventDispatcher : Dispatcher<IEvent>
     {
-        public EventDispatcher(IHandlerFactory eventHandlerFactory) : base(eventHandlerFactory)
+        public EventDispatcher(Func<Type, IHandler> eventHandlerFactory) : base(eventHandlerFactory)
         {
         }
     }

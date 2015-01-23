@@ -7,10 +7,10 @@ namespace HackedBrain.ServiceBus.Core
 {
     public class Dispatcher<T> : IDispatcher<T>
     {
-        private IHandlerFactory handlerFactory;
+        private Func<Type, IHandler> handlerFactory;
         private ConcurrentDictionary<Type, Func<T, Task>> handlerDispatchers = new ConcurrentDictionary<Type, Func<T, Task>>();
 
-        public Dispatcher(IHandlerFactory handlerFactory)
+        public Dispatcher(Func<Type, IHandler> handlerFactory)
         {
             this.handlerFactory = handlerFactory;
         }
@@ -33,7 +33,7 @@ namespace HackedBrain.ServiceBus.Core
                     // TODO: optimize this gross, non-performant reflection/dynamic logic by building dynamic lambda with expression API
                     return @event =>
                         {
-                            IHandler handler = (IHandler)this.handlerFactory.GetType().GetMethod("CreateHandler").GetGenericMethodDefinition().MakeGenericMethod(ct).Invoke(this.handlerFactory, null);
+                            IHandler handler = (IHandler)this.handlerFactory(ct);
 
                             return (Task)((dynamic)handler).Handle(@event);
                         };
