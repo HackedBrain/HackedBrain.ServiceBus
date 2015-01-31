@@ -13,7 +13,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
             [Fact]
             public void GenerateMetadataForNullMessageThrows()
             {
-                StandardMessageMetadataProvider standardMessageMetadataProvider = new StandardMessageMetadataProvider();
+                StandardMessageMetadataProvider standardMessageMetadataProvider = new StandardMessageMetadataProvider(t => null);
                 
                 Action generateMetadata = () =>
                 {
@@ -26,7 +26,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
             [Fact]
             public void GenerateMetadataPopulatesDictionaryWithExpectedKeyValues()
             {
-                StandardMessageMetadataProvider standardMessageMetadataProvider = new StandardMessageMetadataProvider();
+                StandardMessageMetadataProvider standardMessageMetadataProvider = new StandardMessageMetadataProvider(t => null);
 
                 IEnumerable<KeyValuePair<string, object>> metadata = standardMessageMetadataProvider.GenerateMetadata(new {});
 

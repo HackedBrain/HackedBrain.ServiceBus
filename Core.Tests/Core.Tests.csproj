@@ -81,10 +81,10 @@
     <Compile Include="MessageProcessorFacts.cs" />
     <Compile Include="CompositeMessageMetadataProviderFacts.cs" />
     <Compile Include="StandardMessageBuilderFacts.cs" />
-    <Compile Include="StandardMessageMetadataProviderFacts.cs" />
     <Compile Include="EventBusFacts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CommandBusFacts.cs" />
+    <Compile Include="StandardMessageMetadataProviderFacts.cs" />
     <Compile Include="TestCommand.cs" />
     <Compile Include="TestEvent.cs" />
   </ItemGroup>

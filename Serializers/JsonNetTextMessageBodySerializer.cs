@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters;
-using System.Text;
-using System.Threading.Tasks;
 using HackedBrain.ServiceBus.Core;
 using Newtonsoft.Json;
 
@@ -19,6 +16,8 @@ namespace HackedBrain.ServiceBus.Serializers
             TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
             TypeNameHandling = TypeNameHandling.All
         };
+
+        private static readonly IEnumerable<KeyValuePair<string, object>> EmptyMetadata = Enumerable.Empty<KeyValuePair<string, object>>();
 
         private JsonSerializer jsonSerializer;
 
@@ -39,16 +38,18 @@ namespace HackedBrain.ServiceBus.Serializers
 
         #region IMessageBodySerializer implementation
 
-        public void SerializeBody<TBody>(TBody body, Stream destinationStream)
+        public IEnumerable<KeyValuePair<string, object>> SerializeBody<TBody>(TBody body, Stream destinationStream)
         {
             using(StreamWriter streamWriter = new StreamWriter(destinationStream))
             using(JsonTextWriter jsonWriter = new JsonTextWriter(streamWriter))
             {
                 this.jsonSerializer.Serialize(jsonWriter, body);
             }
+
+            return JsonNetTextMessageBodySerializer.EmptyMetadata;
         }
 
-        public TBody DeserializeBody<TBody>(Stream sourceStream)
+        public TBody DeserializeBody<TBody>(Stream sourceStream, IEnumerable<KeyValuePair<string, object>> metadata)
         {
             using(StreamReader streamReader = new StreamReader(sourceStream))
             using(JsonTextReader jsonReader = new JsonTextReader(streamReader))

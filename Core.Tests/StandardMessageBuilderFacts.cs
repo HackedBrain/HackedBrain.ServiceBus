@@ -50,7 +50,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
                 messageMetadataProvider.Setup(mp => mp.GenerateMetadata(It.IsAny<TestEvent>()))
                     .Returns(testMetadata);
 
-                StandardMessageBuilder messageBuilder = new StandardMessageBuilder(t => messageMetadataProvider.Object, t => null, t => null, t => null);
+                StandardMessageBuilder messageBuilder = new StandardMessageBuilder(t => null, t => null, t => null, t => messageMetadataProvider.Object);
 
                 TestEvent testEvent = new TestEvent();
                 
@@ -60,7 +60,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
                     It.Is<TestEvent>(it => Object.ReferenceEquals(it, testEvent))),
                     Times.Once());
 
-                message.Metadata.Should().BeSameAs(testMetadata);
+                message.Metadata.Should().BeEquivalentTo(testMetadata);
             }
         }
     }

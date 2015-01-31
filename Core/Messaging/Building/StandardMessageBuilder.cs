@@ -9,21 +9,21 @@ namespace HackedBrain.ServiceBus.Core
     {
         #region Fields
 
-        private Func<Type, IMessageMetadataProvider> messageMetadataProviderFactory;
         private Func<Type, IMessageIdProvider> messageIdProviderFactory;
         private Func<Type, IMessageCorrelationIdProvider> messageCorrelationIdProviderFactory;
         private Func<Type, IMessageSessionIdProvider> messageSessionIdProviderFactory;
+        private Func<Type, IMessageMetadataProvider> messageMetadataProviderFactory;
 
         #endregion
 
         #region Constructors
 
-        public StandardMessageBuilder(Func<Type, IMessageMetadataProvider> messageMetadataProviderFactory, Func<Type, IMessageIdProvider> messageIdProviderFactory, Func<Type, IMessageCorrelationIdProvider> messageCorrelationIdProviderFactory, Func<Type, IMessageSessionIdProvider> messageSessionIdProviderFactory)
+        public StandardMessageBuilder(Func<Type, IMessageIdProvider> messageIdProviderFactory, Func<Type, IMessageCorrelationIdProvider> messageCorrelationIdProviderFactory, Func<Type, IMessageSessionIdProvider> messageSessionIdProviderFactory, Func<Type, IMessageMetadataProvider> messageMetadataProviderFactory)
         {
-            this.messageMetadataProviderFactory = messageMetadataProviderFactory;
             this.messageIdProviderFactory = messageIdProviderFactory;
             this.messageCorrelationIdProviderFactory = messageCorrelationIdProviderFactory;
             this.messageSessionIdProviderFactory = messageSessionIdProviderFactory;
+            this.messageMetadataProviderFactory = messageMetadataProviderFactory;
         }
 
         #endregion
@@ -36,18 +36,13 @@ namespace HackedBrain.ServiceBus.Core
             {
                 throw new ArgumentNullException("body");
             }
-            
-            IEnumerable<KeyValuePair<string, object>> metadata = this.GenerateMetadata(body);
-            string messageId = this.GenerateMessageId(body);
-            string messageCorrelationId = this.GenerateCorrelationId(body);
-            string sessionId = this.GenerateSessionId(body);
 
             return new Message<TBody>(body)
             {
-                Id = messageId,
-                CorrelationId = messageCorrelationId,
-                SessionId = sessionId,
-                Metadata = metadata
+                Id = this.GenerateMessageId(body),
+                CorrelationId = this.GenerateCorrelationId(body),
+                SessionId = this.GenerateSessionId(body),
+                Metadata = this.GenerateMetadata(body)
             };
         }
 
@@ -57,30 +52,45 @@ namespace HackedBrain.ServiceBus.Core
 
         protected virtual IEnumerable<KeyValuePair<string, object>> GenerateMetadata<TBody>(TBody body)
         {
-            IMessageMetadataProvider metadataProvider = this.messageMetadataProviderFactory(typeof(TBody));
-
-            return metadataProvider != null ? metadataProvider.GenerateMetadata(body) : null;
+            return this.GetValueOrDefaultFromMessageBody(
+                this.messageMetadataProviderFactory,
+                body,
+                (p, b) => p.GenerateMetadata(b));
         }
 
         protected virtual string GenerateMessageId<TBody>(TBody body)
         {
-            IMessageIdProvider messageIdProvider = this.messageIdProviderFactory(typeof(TBody));
-                
-            return messageIdProvider != null ? messageIdProvider.GenerateMessageId(body) : null;
+            return this.GetValueOrDefaultFromMessageBody(
+                this.messageIdProviderFactory,
+                body,
+                (p, b) => p.GenerateMessageId(b));
         }
 
         protected virtual string GenerateCorrelationId<TBody>(TBody body)
         {
-            IMessageCorrelationIdProvider messageCorrelationIdProvider = this.messageCorrelationIdProviderFactory(typeof(TBody));
-
-            return messageCorrelationIdProvider != null ? messageCorrelationIdProvider.GenerateCorrelationId(body) : null;
+            return this.GetValueOrDefaultFromMessageBody(
+                this.messageCorrelationIdProviderFactory,
+                body,
+                (p, b) => p.GenerateCorrelationId(b));
         }
 
         protected virtual string GenerateSessionId<TBody>(TBody body)
         {
-            IMessageSessionIdProvider messageSessionIdProvider = this.messageSessionIdProviderFactory(typeof(TBody));
+            return this.GetValueOrDefaultFromMessageBody(
+                this.messageSessionIdProviderFactory,
+                body,
+                (p, b) => p.GenerateSessionId(b));
+        }
 
-            return messageSessionIdProvider != null ? messageSessionIdProvider.GenerateSessionId(body) : null;
+        #endregion
+
+        #region Helper methods
+
+        private TResult GetValueOrDefaultFromMessageBody<TBody, TThinger, TResult>(Func<Type, TThinger> thingers, TBody body, Func<TThinger, TBody, TResult> func) where TThinger : class
+        {
+            TThinger thinger = thingers(typeof(TThinger));
+
+            return thinger != null ? func(thinger, body) : default(TResult);
         }
 
         #endregion
@@ -88,12 +98,12 @@ namespace HackedBrain.ServiceBus.Core
 
     public class FuncMessageMetadataProvider<TMessageBodyType> : IMessageMetadataProvider
     {
-        Func<TMessageBodyType, IEnumerable<KeyValuePair<string, object>>> func;
+        Func<TMessageBodyType, IEnumerable<KeyValuePair<string, object>>> providerFunc;
 
-        public FuncMessageMetadataProvider(Func<TMessageBodyType, IEnumerable<KeyValuePair<string, object>>> func)
+        public FuncMessageMetadataProvider(Func<TMessageBodyType, IEnumerable<KeyValuePair<string, object>>> providerFunc)
         {
-
-        }        
+            this.providerFunc = providerFunc;
+        }
 
         public IEnumerable<KeyValuePair<string, object>> GenerateMetadata<TBody>(TBody body)
         {
@@ -102,7 +112,7 @@ namespace HackedBrain.ServiceBus.Core
                 throw new ArgumentException(string.Format("This implementation only handles message bodies of type {0}, but was called for {1}.", typeof(TMessageBodyType).FullName, typeof(TBody).FullName));
             }
 
-            return this.func((TMessageBodyType)(object)body);
+            return this.providerFunc((TMessageBodyType)(object)body);
         }
     }
 }

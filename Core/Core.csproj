@@ -58,6 +58,7 @@
     <Compile Include="Dispatcher.cs" />
     <Compile Include="IDispatcher.cs" />
     <Compile Include="IHandler.cs" />
+    <Compile Include="Messaging\Building\IMessageTypeNameProvider.cs" />
     <Compile Include="Messaging\IMessageBodySerializer.cs" />
     <Compile Include="MessageProcessor.cs" />
     <Compile Include="Events\EventProcessor.cs" />

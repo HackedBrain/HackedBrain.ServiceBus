@@ -1,11 +1,12 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace HackedBrain.ServiceBus.Core
 {
     public interface IMessageBodySerializer
     {
-        void SerializeBody<TBody>(TBody body, Stream destinationStream);
+        IEnumerable<KeyValuePair<string, object>> SerializeBody<TBody>(TBody body, Stream destinationStream);
 
-        TBody DeserializeBody<TBody>(Stream sourceStream);
+        TBody DeserializeBody<TBody>(Stream sourceStream, IEnumerable<KeyValuePair<string, object>> metadata);
     }
 }

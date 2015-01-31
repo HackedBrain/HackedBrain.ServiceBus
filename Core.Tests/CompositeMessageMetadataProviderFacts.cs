@@ -70,7 +70,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
 
                 // Make sure each child metadata provider's data was returned (and no extra data was returned)
                 metadata.Count.Should().Be(mockMessageMetadataProviders.Count);
-                metadata.Should().IntersectWith(mockMessageMetadataProviders.Keys.Select(k => new KeyValuePair<string, object>(k.ToString(), k)));
+                metadata.Should().BeEquivalentTo(mockMessageMetadataProviders.Keys.Select(k => new KeyValuePair<string, object>(k.ToString(), k)));
             }
 
             private class TestMessage
