@@ -39,10 +39,10 @@ namespace HackedBrain.ServiceBus.Core.Tests
             [Fact]
             public async Task SendingCommandSendsViaMessageSender()
             {
-                Mock<IMessage<TestCommand>> mockMessage = new Mock<IMessage<TestCommand>>(); 
+                Mock<IMessage> mockMessage = new Mock<IMessage>(); 
                 
                 Mock<IMessageBuilder> mockMessageBuilder = new Mock<IMessageBuilder>();
-                mockMessageBuilder.Setup(mb => mb.BuildMessage<TestCommand>(It.IsAny<TestCommand>()))
+                mockMessageBuilder.Setup(mb => mb.BuildMessage(It.IsAny<TestCommand>()))
                     .Returns(mockMessage.Object);
                 
                 Mock<IMessageSender> mockMessageSender = new Mock<IMessageSender>();
@@ -56,7 +56,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
 
                 mockMessageSender.Verify(ms => 
                     ms.SendAsync(
-                        It.Is<IMessage<TestCommand>>(m => Object.ReferenceEquals(m, mockMessage.Object)), 
+                        It.Is<IMessage>(m => Object.ReferenceEquals(m, mockMessage.Object)), 
                         It.Is<CancellationToken>(ct => ct == testCancellationToken)),
                         Times.Once());
             }

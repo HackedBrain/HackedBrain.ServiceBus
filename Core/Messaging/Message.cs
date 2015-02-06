@@ -2,11 +2,11 @@
 
 namespace HackedBrain.ServiceBus.Core
 {
-    public class Message<TBody> : IMessage<TBody>
+    public class Message : IMessage
     {
-        private TBody body;
+        private object body;
 
-        public Message(TBody body)
+        public Message(object body)
         {
             this.body = body;
         }
@@ -35,7 +35,7 @@ namespace HackedBrain.ServiceBus.Core
             set;
         }
 
-        public TBody Body
+        public object Body
         {
             get
             {

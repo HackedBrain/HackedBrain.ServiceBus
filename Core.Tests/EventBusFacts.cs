@@ -36,17 +36,17 @@ namespace HackedBrain.ServiceBus.Core.Tests
                 await eventBus.PublishEventAsync(testEvent, CancellationToken.None);
 
                 mockMessageBuilder.Verify(
-                        mb => mb.BuildMessage<TestEvent>(It.Is<TestEvent>(it => Object.ReferenceEquals(it, testEvent))),
+                        mb => mb.BuildMessage(It.Is<TestEvent>(it => Object.ReferenceEquals(it, testEvent))),
                         Times.Once());
             }
 
             [Fact]
             public async Task PublishingEventSendsViaMessageSender()
             {
-                Mock<IMessage<TestEvent>> mockMessage = new Mock<IMessage<TestEvent>>();
+                Mock<IMessage> mockMessage = new Mock<IMessage>();
 
                 Mock<IMessageBuilder> mockMessageBuilder = new Mock<IMessageBuilder>();
-                mockMessageBuilder.Setup(mb => mb.BuildMessage<TestEvent>(It.IsAny<TestEvent>()))
+                mockMessageBuilder.Setup(mb => mb.BuildMessage(It.IsAny<TestEvent>()))
                     .Returns(mockMessage.Object);
                 
                 Mock<IMessageSender> mockMessageSender = new Mock<IMessageSender>();
@@ -60,7 +60,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
 
                 mockMessageSender.Verify(ms => 
                     ms.SendAsync(
-                        It.Is<IMessage<TestEvent>>(m => Object.ReferenceEquals(m, mockMessage.Object)),
+                        It.Is<IMessage>(m => Object.ReferenceEquals(m, mockMessage.Object)),
                         It.Is<CancellationToken>(ct => ct == testCancellationToken)),
                         Times.Once());
             }

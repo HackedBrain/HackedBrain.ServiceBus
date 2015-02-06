@@ -49,12 +49,12 @@ namespace HackedBrain.ServiceBus.Serializers
             return JsonNetTextMessageBodySerializer.EmptyMetadata;
         }
 
-        public TBody DeserializeBody<TBody>(Stream sourceStream, IEnumerable<KeyValuePair<string, object>> metadata)
+        public object DeserializeBody(Stream sourceStream, IEnumerable<KeyValuePair<string, object>> metadata)
         {
             using(StreamReader streamReader = new StreamReader(sourceStream))
             using(JsonTextReader jsonReader = new JsonTextReader(streamReader))
             {
-                return this.jsonSerializer.Deserialize<TBody>(jsonReader);
+                return this.jsonSerializer.Deserialize(jsonReader);
             }
         }
 

@@ -6,7 +6,7 @@ using Microsoft.ServiceBus.Messaging;
 
 namespace HackedBrain.ServiceBus.Azure
 {
-    public class ServiceBusTopicMessageReceiver : IMessageReceiver
+    public class ServiceBusMessageReceiverMessageReceiver : IMessageReceiver
     {
         #region Fields
 
@@ -17,7 +17,7 @@ namespace HackedBrain.ServiceBus.Azure
 
         #region Constructors
 
-        public ServiceBusTopicMessageReceiver(MessageReceiver messageReceiver, IMessageBodySerializer messageBodySerializer)
+        public ServiceBusMessageReceiverMessageReceiver(MessageReceiver messageReceiver, IMessageBodySerializer messageBodySerializer)
         {
             this.messageReceiver = messageReceiver;
             this.messageBodySerializer = messageBodySerializer;
@@ -27,11 +27,11 @@ namespace HackedBrain.ServiceBus.Azure
 
         #region IMessageReceiver implementation
 
-        public IObservable<IMessage<TMessageBody>> WhenMessageReceived<TMessageBody>(TimeSpan waitTimeout = default(TimeSpan))
+        public IObservable<IMessage> WhenMessageReceived(TimeSpan waitTimeout = default(TimeSpan))
         {
             return this.messageReceiver
                 .WhenMessageReceived(waitTimeout)
-                .Select(brokeredMessage => brokeredMessage.ToMessage<TMessageBody>(this.messageBodySerializer));
+                .Select(brokeredMessage => brokeredMessage.ToMessage(this.messageBodySerializer));
         }
 
         #endregion

@@ -8,6 +8,6 @@ namespace HackedBrain.ServiceBus.Core
 
     public interface IHandler<T> : IHandler
     {
-        Task HandleAsync(T what);
+        Task HandleAsync(T messageBody);
     }
 }

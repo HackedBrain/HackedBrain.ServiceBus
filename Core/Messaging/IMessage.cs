@@ -2,7 +2,7 @@
 
 namespace HackedBrain.ServiceBus.Core
 {
-    public interface IMessage<TBody>
+    public interface IMessage
     {
         string Id
         {
@@ -24,7 +24,7 @@ namespace HackedBrain.ServiceBus.Core
             get;
         }
 
-        TBody Body
+        object Body
         {
             get;
         }

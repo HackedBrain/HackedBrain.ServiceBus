@@ -6,20 +6,20 @@ using System.Reactive.Subjects;
 
 namespace HackedBrain.ServiceBus.Core
 {
-    public class MessageProcessor<T> : IProcessor, IDisposable
+    public class MessageProcessor : IProcessor, IDisposable
     {
         #region Fields
 
-        private IDispatcher<T> dispatcher;
+        private IDispatcher dispatcher;
         private IMessageReceiver messageReceiver;
         private IDisposable messageDisatchingSubscription;
-        private Subject<IMessage<T>> messageProcessedSubject;
+        private Subject<IMessage> messageProcessedSubject;
 
         #endregion
 
         #region Constructors
 
-        public MessageProcessor(IMessageReceiver messageReceiver, IDispatcher<T> dispatcher)
+        public MessageProcessor(IMessageReceiver messageReceiver, IDispatcher dispatcher)
         {
             if(messageReceiver == null)
             {
@@ -34,14 +34,14 @@ namespace HackedBrain.ServiceBus.Core
             }
             
             this.dispatcher = dispatcher;
-            this.messageProcessedSubject = new Subject<IMessage<T>>();
+            this.messageProcessedSubject = new Subject<IMessage>();
         }
 
         #endregion
 
         #region Type specific methods
 
-        public IObservable<IMessage<T>> WhenMessageProcessed()
+        public IObservable<IMessage> WhenMessageProcessed()
         {
             return this.messageProcessedSubject;
         }
@@ -59,13 +59,13 @@ namespace HackedBrain.ServiceBus.Core
 
             CancellationDisposable messageDispatchingDisposable = new CancellationDisposable();
 
-            IDisposable messageProcessingDisposable = this.messageReceiver.WhenMessageReceived<T>()
+            IDisposable messageProcessingDisposable = this.messageReceiver.WhenMessageReceived()
 #if DEBUG                
-                .Do(message => Debug.WriteLine("Processing event: MessageType={0}", message.Body.GetType().Name))
+                .Do(message => Debug.WriteLine("Processing event: BodyType={0};", message.Body.GetType().Name))
 #endif
                 .Subscribe(async message => 
                     {
-                        T messageBody = message.Body;
+                        object messageBody = message.Body;
                         
                         await this.dispatcher.DispatchAsync(messageBody, messageDispatchingDisposable.Token);
 
@@ -87,7 +87,7 @@ namespace HackedBrain.ServiceBus.Core
 
             this.messageProcessedSubject.OnCompleted();
             this.messageProcessedSubject.Dispose();
-            this.messageProcessedSubject = new Subject<IMessage<T>>();
+            this.messageProcessedSubject = new Subject<IMessage>();
         }
 
         #endregion

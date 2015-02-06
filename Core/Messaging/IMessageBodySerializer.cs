@@ -7,6 +7,6 @@ namespace HackedBrain.ServiceBus.Core
     {
         IEnumerable<KeyValuePair<string, object>> SerializeBody<TBody>(TBody body, Stream destinationStream);
 
-        TBody DeserializeBody<TBody>(Stream sourceStream, IEnumerable<KeyValuePair<string, object>> metadata);
+        object DeserializeBody(Stream sourceStream, IEnumerable<KeyValuePair<string, object>> metadata);
     }
 }

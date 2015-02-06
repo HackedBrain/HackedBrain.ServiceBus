@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 
 namespace HackedBrain.ServiceBus.Core
 {
-    public interface IDispatcher<T>
+    public interface IDispatcher
     {
-        Task DispatchAsync(T what, CancellationToken cancellationToken);
+        Task DispatchAsync(object messageBody, CancellationToken cancellationToken);
     }
 }

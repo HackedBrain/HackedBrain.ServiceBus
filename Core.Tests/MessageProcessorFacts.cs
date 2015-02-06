@@ -19,7 +19,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
             [Fact]
             public void ConstructWithNullMessageReceiverThrows()
             {
-                Action constructor = () => new MessageProcessor<object>(null, new Mock<IDispatcher<object>>().Object);
+                Action constructor = () => new MessageProcessor(null, new Mock<IDispatcher>().Object);
 
                 constructor.ShouldThrow<ArgumentNullException>();
             }
@@ -27,7 +27,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
             [Fact]
             public void ConstructWithNullEventDispatcherThrows()
             {
-                Action constructor = () => new MessageProcessor<object>(new Mock<IMessageReceiver>().Object, null);
+                Action constructor = () => new MessageProcessor(new Mock<IMessageReceiver>().Object, null);
 
                 constructor.ShouldThrow<ArgumentNullException>();
             }
@@ -38,13 +38,13 @@ namespace HackedBrain.ServiceBus.Core.Tests
             [Fact]
             public void ShouldThrowExceptionIfAlreadyStarted()
             {
-                Subject<IMessage<object>> testMessagesSubject = new Subject<IMessage<object>>();
+                Subject<IMessage> testMessagesSubject = new Subject<IMessage>();
 
                 Mock<IMessageReceiver> mockMessageReceiver = new Mock<IMessageReceiver>();
-                mockMessageReceiver.Setup(mr => mr.WhenMessageReceived<object>(default(TimeSpan)))
+                mockMessageReceiver.Setup(mr => mr.WhenMessageReceived(default(TimeSpan)))
                     .Returns(testMessagesSubject);
                 
-                MessageProcessor<object> messageProcessor = new MessageProcessor<object>(mockMessageReceiver.Object, new Mock<IDispatcher<object>>().Object);
+                MessageProcessor messageProcessor = new MessageProcessor(mockMessageReceiver.Object, new Mock<IDispatcher>().Object);
 
                 messageProcessor.Start();
 
@@ -56,19 +56,19 @@ namespace HackedBrain.ServiceBus.Core.Tests
             [Fact]
             public async Task ShouldProcessMessagesFromReceiver()
             {
-                Subject<IMessage<object>> testMessagesSubject = new Subject<IMessage<object>>();
+                Subject<IMessage> testMessagesSubject = new Subject<IMessage>();
 
                 Mock<IMessageReceiver> mockMessageReceiver = new Mock<IMessageReceiver>();
-                mockMessageReceiver.Setup(mr => mr.WhenMessageReceived<object>(default(TimeSpan)))
+                mockMessageReceiver.Setup(mr => mr.WhenMessageReceived(default(TimeSpan)))
                     .Returns(testMessagesSubject);
 
-                Mock<IMessage<object>> mockMessage = new Mock<IMessage<object>>();
+                Mock<IMessage> mockMessage = new Mock<IMessage>();
                 mockMessage.SetupGet(m => m.Body)
                     .Returns(new object());
 
-                using(MessageProcessor<object> messageProcessor = new MessageProcessor<object>(mockMessageReceiver.Object, new Mock<IDispatcher<object>>().Object))
+                using(MessageProcessor messageProcessor = new MessageProcessor(mockMessageReceiver.Object, new Mock<IDispatcher>().Object))
                 {
-                    IConnectableObservable<IMessage<object>> processedMessages = messageProcessor.WhenMessageProcessed().ObserveOn(TaskPoolScheduler.Default).Replay();
+                    IConnectableObservable<IMessage> processedMessages = messageProcessor.WhenMessageProcessed().ObserveOn(TaskPoolScheduler.Default).Replay();
 
                     using(processedMessages.Connect())
                     {
@@ -78,13 +78,13 @@ namespace HackedBrain.ServiceBus.Core.Tests
 
                         testMessagesSubject.OnNext(mockMessage.Object);
 
-                        IMessage<object> message = await processedMessages.FirstOrDefaultAsync();
+                        IMessage message = await processedMessages.FirstOrDefaultAsync();
 
                         message.Should().BeSameAs(mockMessage.Object);
                     }
                 }
 
-                mockMessageReceiver.Verify(mr => mr.WhenMessageReceived<object>(It.IsAny<TimeSpan>()), Times.Once());
+                mockMessageReceiver.Verify(mr => mr.WhenMessageReceived(It.IsAny<TimeSpan>()), Times.Once());
             }
         }
 
@@ -93,19 +93,19 @@ namespace HackedBrain.ServiceBus.Core.Tests
             [Fact]
             public void ShouldDeliverMessagesToDispatcher()
             {
-                Subject<IMessage<object>> testMessagesSubject = new Subject<IMessage<object>>();
+                Subject<IMessage> testMessagesSubject = new Subject<IMessage>();
 
                 Mock<IMessageReceiver> mockMessageReceiver = new Mock<IMessageReceiver>();
-                mockMessageReceiver.Setup(mr => mr.WhenMessageReceived<object>(default(TimeSpan)))
+                mockMessageReceiver.Setup(mr => mr.WhenMessageReceived(default(TimeSpan)))
                     .Returns(testMessagesSubject);
 
-                Mock<IDispatcher<object>> mockEventDispatcher = new Mock<IDispatcher<object>>();
+                Mock<IDispatcher> mockEventDispatcher = new Mock<IDispatcher>();
 
-                List<IMessage<object>> testMessages = Enumerable.Range(1, 3).Select(i =>
+                List<IMessage> testMessages = Enumerable.Range(1, 3).Select(i =>
                 {
                     string id = i.ToString();
 
-                    Mock<IMessage<object>> mockEventMessage = new Mock<IMessage<object>>();
+                    Mock<IMessage> mockEventMessage = new Mock<IMessage>();
                     mockEventMessage.SetupGet(m => m.Id)
                         .Returns("Message:" + id);
 
@@ -117,11 +117,11 @@ namespace HackedBrain.ServiceBus.Core.Tests
 
                 MockSequence mockSequence = new MockSequence();
 
-                using(MessageProcessor<object> messageProcessor = new MessageProcessor<object>(mockMessageReceiver.Object, mockEventDispatcher.Object))
+                using(MessageProcessor messageProcessor = new MessageProcessor(mockMessageReceiver.Object, mockEventDispatcher.Object))
                 {
                     messageProcessor.Start();
 
-                    foreach(IMessage<object> eventMessage in testMessages)
+                    foreach(IMessage eventMessage in testMessages)
                     {
                         testMessagesSubject.OnNext(eventMessage);
                     }
@@ -142,7 +142,7 @@ namespace HackedBrain.ServiceBus.Core.Tests
             [Fact]
             public void ShouldThrowExceptionIfNotAlreadyStarted()
             {
-                MessageProcessor<object> messageProcessor = new MessageProcessor<object>(new Mock<IMessageReceiver>().Object, new Mock<IDispatcher<object>>().Object);
+                MessageProcessor messageProcessor = new MessageProcessor(new Mock<IMessageReceiver>().Object, new Mock<IDispatcher>().Object);
 
                 Action stop = () => messageProcessor.Stop();
 
@@ -153,17 +153,17 @@ namespace HackedBrain.ServiceBus.Core.Tests
             [Fact]
             public async Task ShouldStopReceivingMessagesWhenStopped()
             {
-                Subject<IMessage<object>> testMessagesSubject = new Subject<IMessage<object>>();
+                Subject<IMessage> testMessagesSubject = new Subject<IMessage>();
 
                 Mock<IMessageReceiver> mockMessageReceiver = new Mock<IMessageReceiver>();
-                mockMessageReceiver.Setup(mr => mr.WhenMessageReceived<object>(default(TimeSpan)))
+                mockMessageReceiver.Setup(mr => mr.WhenMessageReceived(default(TimeSpan)))
                     .Returns(testMessagesSubject);
 
-                Mock<IMessage<object>> mockMessage = new Mock<IMessage<object>>();
+                Mock<IMessage> mockMessage = new Mock<IMessage>();
                 mockMessage.SetupGet(m => m.Body)
                     .Returns(new object());
 
-                using(MessageProcessor<object> messageProcessor = new MessageProcessor<object>(mockMessageReceiver.Object, new Mock<IDispatcher<object>>().Object))
+                using(MessageProcessor messageProcessor = new MessageProcessor(mockMessageReceiver.Object, new Mock<IDispatcher>().Object))
                 {
                     IConnectableObservable<object> processedEvents = messageProcessor.WhenMessageProcessed().ObserveOn(TaskPoolScheduler.Default).Select(m => m.Body).Publish();
 

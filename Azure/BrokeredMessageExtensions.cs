@@ -11,15 +11,15 @@ namespace HackedBrain.ServiceBus.Azure
 {
     public static class BrokeredMessageExtensions
     {
-        public static IMessage<TMessageBody> ToMessage<TMessageBody>(this BrokeredMessage brokeredMessage, IMessageBodySerializer messageBodySerializer)
+        public static IMessage ToMessage(this BrokeredMessage brokeredMessage, IMessageBodySerializer messageBodySerializer)
         {
             using(Stream messageBodyStream = brokeredMessage.GetBody<Stream>())
             {
                 IEnumerable<KeyValuePair<string, object>> messageMetadata = brokeredMessage.Properties;
                 
-                TMessageBody messageBody = messageBodySerializer.DeserializeBody<TMessageBody>(messageBodyStream, messageMetadata);
+                object messageBody = messageBodySerializer.DeserializeBody(messageBodyStream, messageMetadata);
                 
-                return new Message<TMessageBody>(messageBody)
+                return new Message(messageBody)
                     {
 
                         Id = brokeredMessage.MessageId,

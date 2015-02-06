@@ -39,7 +39,7 @@ namespace HackedBrain.ServiceBus.Core
                 throw new ArgumentNullException("cancellationToken");
             }
 
-            IMessage<TCommand> message = this.messageBuilder.BuildMessage(command);
+            IMessage message = this.messageBuilder.BuildMessage(command);
 
             return this.messageSender.SendAsync(message, cancellationToken);
         }

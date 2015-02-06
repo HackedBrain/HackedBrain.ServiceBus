@@ -27,12 +27,12 @@ namespace HackedBrain.ServiceBus.Azure
 
 		#region IMessageReceiver implementation
 
-		public IObservable<IMessage<TMessageBody>> WhenMessageReceived<TMessageBody>(TimeSpan waitTimeout = default(TimeSpan))
+		public IObservable<IMessage> WhenMessageReceived(TimeSpan waitTimeout = default(TimeSpan))
 		{
 			return this.queueClient
 				.WhenSessionAccepted()
 				.SelectMany(session => session.WhenMessageReceived()
-										.Select(brokeredMessage => brokeredMessage.ToMessage<TMessageBody>(this.messageBodySerializer)));
+										.Select(brokeredMessage => brokeredMessage.ToMessage(this.messageBodySerializer)));
 		}
 
 		#endregion

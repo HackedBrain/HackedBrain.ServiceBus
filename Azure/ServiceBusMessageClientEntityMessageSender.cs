@@ -31,7 +31,7 @@ namespace HackedBrain.ServiceBus.Azure
 
         #region IMessageSender implementation
 
-        public Task SendAsync<TMessageBody>(IMessage<TMessageBody> message, CancellationToken cancellationToken)
+        public Task SendAsync(IMessage message, CancellationToken cancellationToken)
         {
             MemoryStream bodyStream = new MemoryStream();
             this.messageBodySerializer.SerializeBody(message.Body, bodyStream);

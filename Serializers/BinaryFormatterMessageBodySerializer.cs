@@ -22,11 +22,11 @@ namespace HackedBrain.ServiceBus.Serializers
             return BinaryFormatterMessageBodySerializer.EmptyMetadata;
         }
 
-        public TBody DeserializeBody<TBody>(Stream sourceStream, IEnumerable<KeyValuePair<string, object>> metadata)
+        public object DeserializeBody(Stream sourceStream, IEnumerable<KeyValuePair<string, object>> metadata)
         {
             BinaryFormatter binaryFormatter = BinaryFormatterMessageBodySerializer.BuildBinaryFormatter();
 
-            return (TBody)binaryFormatter.Deserialize(sourceStream);
+            return binaryFormatter.Deserialize(sourceStream);
         }
 
         #endregion

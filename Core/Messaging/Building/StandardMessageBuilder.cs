@@ -30,14 +30,14 @@ namespace HackedBrain.ServiceBus.Core
 
         #region IMessageBuilder implementation
 
-        public IMessage<TBody> BuildMessage<TBody>(TBody body)
+        public IMessage BuildMessage(object body)
         {
             if(body == null)
             {
                 throw new ArgumentNullException("body");
             }
 
-            return new Message<TBody>(body)
+            return new Message(body)
             {
                 Id = this.GenerateMessageId(body),
                 CorrelationId = this.GenerateCorrelationId(body),

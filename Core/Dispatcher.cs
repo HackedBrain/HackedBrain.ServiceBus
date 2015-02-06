@@ -5,37 +5,37 @@ using System.Threading.Tasks;
 
 namespace HackedBrain.ServiceBus.Core
 {
-    public class Dispatcher<T> : IDispatcher<T>
+    public class Dispatcher : IDispatcher
     {
         private Func<Type, IHandler> handlerFactory;
-        private ConcurrentDictionary<Type, Func<T, Task>> handlerDispatchers = new ConcurrentDictionary<Type, Func<T, Task>>();
+        private ConcurrentDictionary<Type, Func<object, Task>> handlerDispatchers = new ConcurrentDictionary<Type, Func<object, Task>>();
 
         public Dispatcher(Func<Type, IHandler> handlerFactory)
         {
             this.handlerFactory = handlerFactory;
         }
 
-        public Task DispatchAsync(T what, CancellationToken cancellationToken)
+        public Task DispatchAsync(object messageBody, CancellationToken cancellationToken)
         {
-            Type whatType = what.GetType();
+            Type messageBodyType = messageBody.GetType();
 
-            Func<T, Task> handlerInvoker = this.GetHandlerInvoker(whatType);
+            Func<object, Task> handlerInvoker = this.GetHandlerInvoker(messageBodyType);
 
-            return handlerInvoker(what);
+            return handlerInvoker(messageBodyType);
         }
 
-        private Func<T, Task> GetHandlerInvoker(Type eventType)
+        private Func<object, Task> GetHandlerInvoker(Type messageBodyType)
         {
             return this.handlerDispatchers.GetOrAdd(
-                eventType,
+                messageBodyType,
                 ct =>
                 {
-                    // TODO: optimize this gross, non-performant reflection/dynamic logic by building dynamic lambda with expression API
-                    return @event =>
+                    // TODO: optimize this gross, non-performant dynamic logic by building strongly typed lambda with expression API
+                    return messageBody =>
                         {
-                            IHandler handler = (IHandler)this.handlerFactory(ct);
+                            IHandler handler = this.handlerFactory(ct);
 
-                            return (Task)((dynamic)handler).Handle(@event);
+                            return ((dynamic)handler).HandleAsync(messageBody);
                         };
                 });
         }

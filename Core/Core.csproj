@@ -53,16 +53,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\CommandDispatcher.cs" />
-    <Compile Include="Commands\CommandProcessor.cs" />
     <Compile Include="Dispatcher.cs" />
     <Compile Include="IDispatcher.cs" />
     <Compile Include="IHandler.cs" />
     <Compile Include="Messaging\Building\IMessageTypeNameProvider.cs" />
     <Compile Include="Messaging\IMessageBodySerializer.cs" />
     <Compile Include="MessageProcessor.cs" />
-    <Compile Include="Events\EventProcessor.cs" />
-    <Compile Include="Events\EventDispatcher.cs" />
     <Compile Include="Events\EventBus.cs" />
     <Compile Include="Commands\CommandBus.cs" />
     <Compile Include="Commands\ICommandBus.cs" />
