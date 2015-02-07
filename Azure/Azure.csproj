@@ -69,6 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BrokeredMessageExtensions.cs" />
+    <Compile Include="Configuration\MessageReceiverConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceBusMessageReceiverMessageReceiver.cs" />
     <Compile Include="ServiceBusTopicMessageSender.cs" />
